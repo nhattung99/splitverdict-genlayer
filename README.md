@@ -11,8 +11,8 @@ https://splitverdict-genlayer.vercel.app
 ## Deployed Contract
 
 - **Network:** studionet (GenLayer Studio hosted)
-- **Address:** `0x4a6402B732D33F6Fae32e068d4fa0960aD80e10A`
-- **Explorer:** https://genlayer-explorer.vercel.app/address/0x4a6402B732D33F6Fae32e068d4fa0960aD80e10A
+- **Address:** `0x264bF20eFEEb675DA09EdaDf964BDD38E445cfea`
+- **Explorer:** https://genlayer-explorer.vercel.app/address/0x264bF20eFEEb675DA09EdaDf964BDD38E445cfea
 
 ## Run the dapp
 

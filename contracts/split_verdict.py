@@ -6,6 +6,17 @@ import json
 
 UserError = gl.vm.UserError
 
+# External GEN transfer to a wallet (EOA). Do not use gl.get_contract_at(eoa):
+# that is an internal IC message and shows as OUT (construct...) + GENVM ERROR
+# on Studio explorer. Official pattern: EVM interface + on='finalized'.
+@gl.evm.contract_interface
+class _Recipient:
+    class View:
+        pass
+
+    class Write:
+        pass
+
 BASIS_POINTS_TOTAL = 10000
 
 STATUS_PENDING = "PENDING"
@@ -313,7 +324,7 @@ class Contract(gl.Contract):
     def _try_transfer(self, recipient: Address, amount: bigint) -> None:
         if amount <= bigint(0):
             return
-        gl.get_contract_at(recipient).emit_transfer(value=u256(amount))
+        _Recipient(_to_address(recipient)).emit_transfer(value=u256(amount), on="finalized")
 
     def _submit_proposal(self, expense_id: str, proposer, shares_json: str, evidence_text: str) -> str:
         expense = self._require_expense(expense_id)
