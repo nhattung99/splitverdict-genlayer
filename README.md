@@ -2,6 +2,14 @@
 
 A payer logs a group expense with an initial split in basis points. Other members accept it, or dispute with a counter-split plus evidence. Independent AI validators must agree on the exact same `winning_proposal_id`. Members then deposit their exact owed GEN and `settle` pays the original payer.
 
+SplitVerdict requires GenLayer: ordinary EVM contracts cannot run independent AI validators that must agree on one discrete winning split.
+
+## Deployed Contract
+
+- **Network:** studionet (GenLayer Studio hosted)
+- **Address:** `0x4a6402B732D33F6Fae32e068d4fa0960aD80e10A`
+- **Explorer:** https://genlayer-explorer.vercel.app/address/0x4a6402B732D33F6Fae32e068d4fa0960aD80e10A
+
 ## Run the dapp
 
 ```bash
