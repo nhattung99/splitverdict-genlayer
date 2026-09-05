@@ -1,0 +1,9 @@
+{
+  "name": "splitverdict-genlayer",
+  "private": true,
+  "scripts": {
+    "build": "npm run build --prefix frontend",
+    "check:float": "node scripts/check-no-float-money.js",
+    "test:money": "node frontend/src/__tests__/unit_conversion.test.js"
+  }
+}
