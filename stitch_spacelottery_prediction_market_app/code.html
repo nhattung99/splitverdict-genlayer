@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-tertiary-container": "#006e35",
+          "on-primary-container": "#006970",
+          "secondary-fixed": "#f2daff",
+          "on-secondary-fixed": "#2e004e",
+          "tertiary-fixed": "#62ff96",
+          "inverse-on-surface": "#2c2f42",
+          "on-error": "#690005",
+          "background": "#0e1223",
+          "on-secondary": "#4c007d",
+          "primary-container": "#00f0ff",
+          "surface-container-low": "#171b2c",
+          "on-tertiary": "#003918",
+          "on-secondary-container": "#d7a4ff",
+          "primary-fixed-dim": "#00dbe9",
+          "on-error-container": "#ffdad6",
+          "surface-container-highest": "#303446",
+          "on-primary-fixed-variant": "#004f54",
+          "secondary-container": "#6d11ad",
+          "secondary-fixed-dim": "#e0b6ff",
+          "inverse-surface": "#dee1fa",
+          "surface-container-high": "#25293b",
+          "on-tertiary-fixed": "#00210b",
+          "surface-tint": "#00dbe9",
+          "tertiary-container": "#34f885",
+          "on-background": "#dee1fa",
+          "secondary": "#e0b6ff",
+          "inverse-primary": "#006970",
+          "on-secondary-fixed-variant": "#6a0baa",
+          "primary-fixed": "#7df4ff",
+          "outline": "#849495",
+          "tertiary-fixed-dim": "#00e475",
+          "surface": "#0e1223",
+          "error-container": "#93000a",
+          "surface-container": "#1b1f30",
+          "outline-variant": "#3b494b",
+          "surface-dim": "#0e1223",
+          "tertiary": "#dbffde",
+          "surface-container-lowest": "#090d1e",
+          "on-surface": "#dee1fa",
+          "on-primary-fixed": "#002022",
+          "error": "#ffb4ab",
+          "on-tertiary-fixed-variant": "#005226",
+          "surface-bright": "#34384b",
+          "surface-variant": "#303446",
+          "on-primary": "#00363a",
+          "primary": "#dbfcff",
+          "on-surface-variant": "#b9cacb"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "max-container": "1320px",
+          "space-2xs": "0.25rem",
+          "gutter-desktop": "1.5rem",
+          "space-3xl": "4rem",
+          "space-lg": "1.5rem",
+          "space-xl": "2rem",
+          "space-sm": "0.75rem",
+          "space-md": "1rem",
+          "gutter-mobile": "1rem",
+          "space-xs": "0.5rem",
+          "space-2xl": "3rem"
+        },
+        "fontFamily": {
+          "headline-lg-mobile": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-lg": [
+            "Plus Jakarta Sans"
+          ],
+          "display-hero": [
+            "Plus Jakarta Sans"
+          ],
+          "headline-sm": [
+            "Plus Jakarta Sans"
+          ],
+          "body-sm": [
+            "Inter"
+          ],
+          "headline-md": [
+            "Plus Jakarta Sans"
+          ],
+          "body-lg": [
+            "Inter"
+          ],
+          "body-md": [
+            "Inter"
+          ],
+          "display-hero-mobile": [
+            "Plus Jakarta Sans"
+          ],
+          "data-mono-num": [
+            "Space Grotesk"
+          ],
+          "label-telemetry-lg": [
+            "Space Grotesk"
+          ],
+          "label-telemetry-sm": [
+            "Space Grotesk"
+          ]
+        },
+        "fontSize": {
+          "headline-lg-mobile": [
+            "26px",
+            {
+              "lineHeight": "34px",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "700"
+            }
+          ],
+          "headline-lg": [
+            "32px",
+            {
+              "lineHeight": "40px",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "700"
+            }
+          ],
+          "display-hero": [
+            "56px",
+            {
+              "lineHeight": "64px",
+              "letterSpacing": "-0.03em",
+              "fontWeight": "800"
+            }
+          ],
+          "headline-sm": [
+            "20px",
+            {
+              "lineHeight": "28px",
+              "fontWeight": "600"
+            }
+          ],
+          "body-sm": [
+            "13px",
+            {
+              "lineHeight": "20px",
+              "fontWeight": "400"
+            }
+          ],
+          "headline-md": [
+            "24px",
+            {
+              "lineHeight": "32px",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "600"
+            }
+          ],
+          "body-lg": [
+            "18px",
+            {
+              "lineHeight": "28px",
+              "fontWeight": "400"
+            }
+          ],
+          "body-md": [
+            "15px",
+            {
+              "lineHeight": "24px",
+              "fontWeight": "400"
+            }
+          ],
+          "display-hero-mobile": [
+            "36px",
+            {
+              "lineHeight": "44px",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "800"
+            }
+          ],
+          "data-mono-num": [
+            "16px",
+            {
+              "lineHeight": "22px",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "500"
+            }
+          ],
+          "label-telemetry-lg": [
+            "14px",
+            {
+              "lineHeight": "18px",
+              "letterSpacing": "0.06em",
+              "fontWeight": "700"
+            }
+          ],
+          "label-telemetry-sm": [
+            "11px",
+            {
+              "lineHeight": "14px",
+              "letterSpacing": "0.08em",
+              "fontWeight": "600"
+            }
+          ]
+        }
+      }
+    }
+  }</script></head><body class="bg-background font-body-md text-body-md text-on-surface antialiased"><header class="fixed top-0 w-full z-50 bg-surface-container-lowest/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.4)]"><div class="h-20 max-w-max-container mx-auto px-gutter-desktop flex items-center justify-between gap-space-md"><div class="flex items-center gap-space-md"><a class="flex items-center gap-space-sm" href="#"><img alt="SpaceLottery Orbital Emblem" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuApsjPA4fsFR7ZL1gDEhCPO-L6VuXqofrHPCkElPIXWoVrR3Bi_pG2133epg5nS8h8keRTJI8zFzFplRfXUTfTbgsD1U3pT4GWEP_x-pL4nnFD_gPaqHavsO9tQ7RXs1rMylQ7Mjd7MgNTnZEjjhWmvgN6Y7ebOH43ttqSf32EFSoB8AGdf2kcyaOQh3yBxBa3vtgVYp4aW5Tp-xd2dIxGylnYL-3bjMXuB26-fjP-WF3d09RbiNmIREQ"/><span class="font-headline-sm text-headline-sm font-bold tracking-tight text-primary">SpaceLottery</span></a><div class="hidden lg:flex items-center gap-space-xs px-space-sm py-space-2xs rounded-full bg-surface-container-high"><span class="w-2 h-2 rounded-full bg-tertiary-container animate-pulse"></span><span class="font-label-telemetry-sm text-label-telemetry-sm text-tertiary uppercase">GenLayer Studionet</span></div><div class="hidden xl:flex items-center gap-space-md pl-space-sm"><span class="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant">24H VOL: <span class="font-data-mono-num text-data-mono-num text-primary-fixed font-bold">$284,500 GEN</span></span><span class="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant flex items-center gap-space-2xs"><span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>HEARTBEAT: <span class="text-tertiary font-bold">ACTIVE</span></span></div></div><nav class="hidden md:flex items-center gap-space-xs" data-active-classes="bg-primary-container text-on-primary-container font-bold rounded-lg shadow-[0_0_15px_rgba(0,240,255,0.25)]"><a aria-current="page" class="px-space-sm py-space-xs transition-all bg-primary-container text-on-primary-container font-bold rounded-lg shadow-[0_0_15px_rgba(0,240,255,0.25)]" data-path="home" href="#">Home</a><a class="px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-headline-sm text-label-telemetry-sm" data-path="quiz-mode" href="#">Quiz Mode</a><a class="px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-headline-sm text-label-telemetry-sm" data-path="fact-mode" href="#">Fact Mode</a><a class="px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-headline-sm text-label-telemetry-sm" data-path="resolutions" href="#">Resolutions</a><a class="px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-headline-sm text-label-telemetry-sm" data-path="history-portfolio" href="#">History / Portfolio</a></nav><div class="flex items-center gap-space-sm"><a class="hidden sm:flex items-center gap-space-2xs px-space-sm py-space-xs rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-secondary font-label-telemetry-sm text-label-telemetry-sm transition-all" href="#"><span class="material-symbols-outlined text-[16px]">water_drop</span>Faucet</a><div class="flex items-center gap-space-xs px-space-sm py-space-2xs rounded-xl bg-surface-container-low"><div class="text-right hidden sm:block"><div class="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant">0x71C...4f9b</div><div class="font-data-mono-num text-data-mono-num font-bold text-primary-fixed">1,420 GEN</div></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></div></header><main class="w-full pt-20 bg-background min-h-screen"><div class="flex flex-col w-full relative overflow-hidden">
+<!-- Subtle dynamic cosmic backdrop layers -->
+<div class="absolute inset-0 pointer-events-none -z-10">
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[550px] bg-secondary-container/15 rounded-full blur-[140px]"></div>
+<div class="absolute top-32 left-1/4 w-[480px] h-[480px] bg-primary-container/10 rounded-full blur-[120px]"></div>
+<div class="absolute top-96 right-1/4 w-[600px] h-[500px] bg-secondary/10 rounded-full blur-[130px]"></div>
+<!-- Starfield particles canvas simulation via inline SVG -->
+<svg class="absolute inset-0 w-full h-full opacity-40 mix-blend-screen" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<radialgradient cx="50%" cy="50%" id="gl-star" r="50%">
+<stop offset="0%" stop-color="#dbfcff" stop-opacity="0.9"></stop>
+<stop offset="100%" stop-color="#dbfcff" stop-opacity="0"></stop>
+</radialgradient>
+</defs>
+<circle cx="12%" cy="18%" fill="#00f0ff" opacity="0.8" r="1.5"></circle>
+<circle cx="28%" cy="12%" fill="#e0b6ff" opacity="0.6" r="2"></circle>
+<circle cx="45%" cy="24%" fill="#fff" opacity="0.9" r="1"></circle>
+<circle cx="72%" cy="14%" fill="#00f0ff" opacity="0.7" r="2.5"></circle>
+<circle cx="88%" cy="22%" fill="#34f885" opacity="0.75" r="1.5"></circle>
+<circle cx="94%" cy="45%" fill="#e0b6ff" opacity="0.5" r="2"></circle>
+<circle cx="6%" cy="62%" fill="#fff" opacity="0.4" r="1.5"></circle>
+<circle cx="22%" cy="75%" fill="#00f0ff" opacity="0.8" r="2.5"></circle>
+<circle cx="58%" cy="68%" fill="#34f885" opacity="0.9" r="1"></circle>
+<circle cx="82%" cy="84%" fill="#e0b6ff" opacity="0.7" r="2"></circle>
+<circle cx="36%" cy="88%" fill="#dbfcff" opacity="0.6" r="1.5"></circle>
+</svg>
+</div>
+<!-- HERO SECTION -->
+<section class="relative w-full max-w-max-container mx-auto px-gutter-desktop pt-space-2xl pb-space-3xl">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center">
+<!-- Text and CTA Cluster -->
+<div class="lg:col-span-7 flex flex-col items-start gap-space-lg">
+<!-- Live Protocol Node Chip -->
+<div class="inline-flex items-center gap-space-xs px-space-sm py-space-2xs rounded-full bg-surface-container-high/90 shadow-[0_0_20px_rgba(0,240,255,0.15)]">
+<span class="relative flex h-2.5 w-2.5">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary-container opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-tertiary-fixed-dim"></span>
+</span>
+<span class="font-label-telemetry-sm text-label-telemetry-sm text-tertiary uppercase tracking-wider">
+            ORBITAL CONSENSUS MATRIX ONLINE
+          </span>
+<span class="text-on-surface-variant font-label-telemetry-sm text-label-telemetry-sm">|</span>
+<span class="font-label-telemetry-sm text-label-telemetry-sm text-primary-fixed">EPOCH #4,819</span>
+</div>
+<!-- Grand Display Headline -->
+<div class="flex flex-col gap-space-2xs">
+<span class="font-label-telemetry-lg text-label-telemetry-lg tracking-widest text-primary-container uppercase">
+            PARIMUTUEL ASTROPHYSICS &amp; PREDICTIONS
+          </span>
+<h1 class="font-display-hero text-display-hero text-on-surface font-extrabold tracking-tight">
+            Predict. Verify. <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-container via-primary-fixed to-secondary">Win.</span>
+</h1>
+</div>
+<!-- Subtitle -->
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+          The first satellite-trivia and real-world event prediction market powered by autonomous AI validator consensus on <strong class="text-primary font-semibold">GenLayer</strong> and live <strong class="text-secondary font-semibold">SatNOGS telemetry</strong>. Stake conviction on immutable celestial truth.
+        </p>
+<!-- CTA Action Hub -->
+<div class="flex flex-wrap items-center gap-space-md pt-space-xs w-full sm:w-auto">
+<a class="group relative inline-flex items-center justify-center gap-space-xs px-space-xl py-space-md rounded-xl bg-primary-container text-on-primary-container font-headline-sm text-headline-sm font-bold shadow-[0_0_25px_rgba(0,240,255,0.45)] hover:shadow-[0_0_35px_rgba(0,240,255,0.7)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200" href="#mode-selection">
+<span>Explore Active Markets</span>
+<span class="material-symbols-outlined text-[20px] transition-transform duration-200 group-hover:translate-x-1">arrow_forward</span>
+</a>
+<button class="inline-flex items-center justify-center gap-space-xs px-space-lg py-space-md rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-secondary hover:text-on-surface font-headline-sm text-headline-sm font-semibold shadow-md transition-all duration-200 active:scale-[0.98]" id="claim-faucet-btn">
+<span class="material-symbols-outlined text-secondary-fixed-dim text-[20px]">water_drop</span>
+<span>Claim Daily Testnet Stake</span>
+<span class="font-label-telemetry-sm text-label-telemetry-sm px-space-2xs py-0.5 rounded bg-secondary-container text-secondary-fixed ml-space-2xs">+50 GEN</span>
+</button>
+</div>
+<!-- Trust Mini-Proof -->
+<div class="flex flex-wrap items-center gap-space-lg pt-space-xs text-on-surface-variant font-label-telemetry-sm text-label-telemetry-sm">
+<div class="flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-tertiary-fixed-dim text-[18px]">verified_user</span>
+<span>Zero Oracle Manipulation</span>
+</div>
+<div class="flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-primary-container text-[18px]">satellite_alt</span>
+<span>Live Doppler &amp; TLE Telemetry</span>
+</div>
+<div class="flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-secondary text-[18px]">lock_open</span>
+<span>Automated Non-Custodial Vaults</span>
+</div>
+</div>
+</div>
+<!-- Hero Visual Asset: High-Tech Orbital Radar Emblem -->
+<div class="lg:col-span-5 flex justify-center items-center relative">
+<div class="relative w-full max-w-[420px] aspect-square flex items-center justify-center">
+<!-- Animated Radar Glow Ring -->
+<div class="absolute inset-0 rounded-full bg-gradient-to-tr from-secondary-container/30 via-primary-container/20 to-transparent blur-2xl animate-pulse"></div>
+<!-- Concentric Gyro Rings (CSS SVG) -->
+<svg class="absolute inset-0 w-full h-full" fill="none" viewbox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+<!-- Outer Target Grid -->
+<circle class="text-surface-container-highest" cx="200" cy="200" r="185" stroke="currentColor" stroke-dasharray="4 6" stroke-width="1.5"></circle>
+<circle class="text-outline-variant/60" cx="200" cy="200" r="145" stroke="currentColor" stroke-width="1.5"></circle>
+<circle class="text-primary-container/40" cx="200" cy="200" r="105" stroke="currentColor" stroke-dasharray="8 4" stroke-width="1.5"></circle>
+<!-- Reticle Crosshairs -->
+<line class="text-outline-variant/30" stroke="currentColor" stroke-width="1" x1="200" x2="200" y1="10" y2="390"></line>
+<line class="text-outline-variant/30" stroke="currentColor" stroke-width="1" x1="10" x2="390" y1="200" y2="200"></line>
+<!-- Orbital ellipse -->
+<ellipse class="text-secondary/70" cx="200" cy="200" rx="170" ry="70" stroke="currentColor" stroke-width="2" transform="rotate(-35 200 200)"></ellipse>
+<ellipse class="text-primary-container/80" cx="200" cy="200" rx="170" ry="70" stroke="currentColor" stroke-width="2" transform="rotate(45 200 200)"></ellipse>
+</svg>
+<!-- Central Emblem Holographic Visual Card -->
+<div class="relative z-10 w-[300px] h-[300px] rounded-3xl bg-surface-container-low/90 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_30px_rgba(0,240,255,0.2)] p-space-lg flex flex-col items-center justify-between text-center overflow-hidden">
+<!-- Glass gloss highlight -->
+<div class="absolute -top-12 -left-12 w-48 h-48 bg-primary/10 rounded-full blur-xl pointer-events-none"></div>
+<div class="w-full flex items-center justify-between text-on-surface-variant font-label-telemetry-sm text-label-telemetry-sm">
+<span class="flex items-center gap-space-2xs text-primary-fixed">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-ping"></span>
+                SAT-ID: ISS 25544
+              </span>
+<span class="text-secondary font-data-mono-num text-data-mono-num">ALT 418 KM</span>
+</div>
+<!-- Animated Radar Sweep Visualization -->
+<div class="relative w-36 h-36 my-auto flex items-center justify-center">
+<div class="absolute inset-0 rounded-full bg-surface-container-highest/60 flex items-center justify-center shadow-inner">
+<div class="w-24 h-24 rounded-full bg-surface-container-high flex items-center justify-center">
+<div class="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.6)]">
+<span class="material-symbols-outlined text-primary-container text-[28px] animate-spin" style="animation-duration: 8s;">radar</span>
+</div>
+</div>
+</div>
+<div class="absolute -top-1 -right-1 px-space-2xs py-0.5 rounded bg-tertiary-container/20 text-tertiary font-label-telemetry-sm text-label-telemetry-sm">
+                PASSING
+              </div>
+</div>
+<div class="w-full bg-surface-container/90 py-space-xs px-space-sm rounded-xl flex items-center justify-between font-label-telemetry-sm text-label-telemetry-sm">
+<span class="text-on-surface-variant">NEXT APOGEE WINNER</span>
+<span class="font-data-mono-num text-data-mono-num text-tertiary font-bold">+1,450 GEN</span>
+</div>
+</div>
+<!-- Floating Telemetry Indicator Badges -->
+<div class="absolute -bottom-4 -left-6 z-20 px-space-md py-space-xs rounded-xl bg-surface-container-high/95 backdrop-blur-xl shadow-xl flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-secondary text-[20px]">query_stats</span>
+<div class="flex flex-col">
+<span class="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant">AI CONSENSUS</span>
+<span class="font-data-mono-num text-data-mono-num text-secondary-fixed font-bold">12 / 12 Nodes</span>
+</div>
+</div>
+<div class="absolute -top-4 -right-4 z-20 px-space-md py-space-xs rounded-xl bg-surface-container-high/95 backdrop-blur-xl shadow-xl flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-tertiary text-[20px]">bolt</span>
+<div class="flex flex-col">
+<span class="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant">SETTLEMENT</span>
+<span class="font-data-mono-num text-data-mono-num text-tertiary font-bold">&lt; 1.4s</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- LIVE GLOBAL TELEMETRY STATS BAR (HUD STRIP) -->
+<section class="w-full max-w-max-container mx-auto px-gutter-desktop -mt-space-md mb-space-2xl">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Stat 1: Active Astronauts -->
+<div class="group relative rounded-2xl bg-surface-container-low/85 backdrop-blur-xl p-space-lg shadow-lg hover:shadow-[0_0_20px_rgba(0,240,255,0.15)] transition-all duration-300 flex items-center justify-between">
+<div class="flex flex-col gap-space-2xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant uppercase tracking-wider">Active Players</span>
+<span class="inline-flex items-center text-tertiary font-label-telemetry-sm text-label-telemetry-sm px-1.5 py-0.5 rounded bg-tertiary-container/15 font-semibold">
+<span class="material-symbols-outlined text-[14px]">trending_up</span> +18% 24h
+            </span>
+</div>
+<div class="font-display-hero text-headline-lg font-extrabold text-on-surface tracking-tight">
+            3,842 <span class="text-headline-sm font-headline-sm text-primary-fixed-dim font-medium">Astronauts</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Staking across 44 simultaneous orbits</p>
+</div>
+<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary-container shadow-md group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[26px]">groups</span>
+</div>
+</div>
+<!-- Stat 2: Total Locked Prize Pool -->
+<div class="group relative rounded-2xl bg-surface-container-low/85 backdrop-blur-xl p-space-lg shadow-lg hover:shadow-[0_0_20px_rgba(224,182,255,0.2)] transition-all duration-300 flex items-center justify-between">
+<div class="flex flex-col gap-space-2xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant uppercase tracking-wider">Total Locked Pool</span>
+<span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+</div>
+<div class="font-display-hero text-headline-lg font-extrabold text-secondary tracking-tight">
+            482,950 <span class="text-headline-sm font-headline-sm text-secondary-fixed font-medium">GEN</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Estimated parity: <span class="text-on-surface font-semibold">~$1,245,800 USD</span></p>
+</div>
+<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-secondary shadow-md group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[26px]">savings</span>
+</div>
+</div>
+<!-- Stat 3: Rounds Resolved Today -->
+<div class="group relative rounded-2xl bg-surface-container-low/85 backdrop-blur-xl p-space-lg shadow-lg hover:shadow-[0_0_20px_rgba(52,248,133,0.15)] transition-all duration-300 flex items-center justify-between">
+<div class="flex flex-col gap-space-2xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant uppercase tracking-wider">Settled Telemetry</span>
+<span class="inline-flex items-center text-tertiary font-label-telemetry-sm text-label-telemetry-sm px-1.5 py-0.5 rounded bg-tertiary-container/15 font-semibold">
+              99.8% ACCURACY
+            </span>
+</div>
+<div class="font-display-hero text-headline-lg font-extrabold text-on-surface tracking-tight">
+            142 <span class="text-headline-sm font-headline-sm text-tertiary font-medium">Rounds</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Validated by GenLayer Intelligent Oracles</p>
+</div>
+<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-tertiary shadow-md group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[26px]">task_alt</span>
+</div>
+</div>
+</div>
+</section>
+<!-- TWO DUAL MODE-SELECTION CARDS -->
+<section class="w-full max-w-max-container mx-auto px-gutter-desktop py-space-xl" id="mode-selection">
+<div class="flex flex-col gap-space-xs mb-space-xl text-center items-center">
+<span class="font-label-telemetry-sm text-label-telemetry-sm text-primary uppercase tracking-widest">CHOOSE YOUR PREDICTION VECTOR</span>
+<h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Engineered Game Chambers</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xl">
+        Select your orbit. Engage in high-velocity astrophysics trivia with automated ground tracking or stake on broader verifiable real-world claims.
+      </p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-space-xl">
+<!-- Card 1: QUIZ MODE -->
+<div class="group relative rounded-3xl bg-surface-container-low/90 backdrop-blur-2xl p-space-xl shadow-[0_12px_32px_-4px_rgba(0,0,0,0.6)] hover:shadow-[0_0_35px_rgba(0,240,255,0.3)] transition-all duration-300 flex flex-col justify-between overflow-hidden">
+<!-- Top glowing gradient accent bar -->
+<div class="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-primary-container via-primary to-primary-container opacity-80 group-hover:opacity-100 transition-opacity"></div>
+<!-- Ambient radial glow inside card -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary-container/5 rounded-full blur-3xl pointer-events-none group-hover:bg-primary-container/10 transition-all"></div>
+<div>
+<!-- Header zone -->
+<div class="flex items-center justify-between mb-space-lg">
+<div class="flex items-center gap-space-md">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-high flex items-center justify-center text-primary-container shadow-md group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[32px]">radar</span>
+</div>
+<div class="flex flex-col">
+<div class="inline-flex items-center gap-space-xs">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">QUIZ MODE</span>
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Satellite &amp; Orbital Trivia</span>
+</div>
+</div>
+<!-- Pool Pill -->
+<div class="text-right px-space-md py-space-xs rounded-xl bg-surface-container-high">
+<div class="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant">LIVE CHAMBER POOL</div>
+<div class="font-data-mono-num text-data-mono-num font-bold text-primary-fixed">18,500 GEN</div>
+</div>
+</div>
+<!-- Feature Bullets -->
+<div class="space-y-space-sm mb-space-xl">
+<div class="flex items-start gap-space-sm p-space-sm rounded-xl bg-surface-container-high/40">
+<span class="material-symbols-outlined text-primary text-[20px] shrink-0 mt-0.5">timer</span>
+<div>
+<strong class="text-on-surface font-semibold font-body-md text-body-md">Fast 90-Second Rounds</strong>
+<p class="text-on-surface-variant font-body-sm text-body-sm">Rapid-fire questions timed with pass transitions. High turnover and escalating multipliers.</p>
+</div>
+</div>
+<div class="flex items-start gap-space-sm p-space-sm rounded-xl bg-surface-container-high/40">
+<span class="material-symbols-outlined text-primary text-[20px] shrink-0 mt-0.5">satellite</span>
+<div>
+<strong class="text-on-surface font-semibold font-body-md text-body-md">Live SatNOGS Orbital Telemetry</strong>
+<p class="text-on-surface-variant font-body-sm text-body-sm">Questions generated directly from active satellite passes, Doppler shifts, and apogee coordinates.</p>
+</div>
+</div>
+<div class="flex items-start gap-space-sm p-space-sm rounded-xl bg-surface-container-high/40">
+<span class="material-symbols-outlined text-tertiary text-[20px] shrink-0 mt-0.5">bolt</span>
+<div>
+<strong class="text-on-surface font-semibold font-body-md text-body-md">Instant Automated Smart Payout</strong>
+<p class="text-on-surface-variant font-body-sm text-body-sm">Winner stakes automatically released to wallet balance at the close of every telemetry epoch.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Card Footer & CTA -->
+<div class="pt-space-md flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-xs font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-tertiary-container animate-ping"></span>
+<span>NEXT ROUND IN: <strong class="text-on-surface font-data-mono-num text-data-mono-num">00:48s</strong></span>
+</div>
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-space-xs px-space-xl py-space-md rounded-xl bg-primary-container text-on-primary-container font-headline-sm text-headline-sm font-bold shadow-[0_0_20px_rgba(0,240,255,0.4)] hover:shadow-[0_0_30px_rgba(0,240,255,0.65)] hover:scale-[1.02] transition-all duration-200" href="#">
+<span>Enter Quiz Chamber</span>
+<span class="material-symbols-outlined text-[20px]">rocket_launch</span>
+</a>
+</div>
+</div>
+<!-- Card 2: FACT MODE -->
+<div class="group relative rounded-3xl bg-surface-container-low/90 backdrop-blur-2xl p-space-xl shadow-[0_12px_32px_-4px_rgba(0,0,0,0.6)] hover:shadow-[0_0_35px_rgba(224,182,255,0.3)] transition-all duration-300 flex flex-col justify-between overflow-hidden">
+<!-- Top glowing gradient accent bar -->
+<div class="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-secondary-container via-secondary to-secondary-fixed opacity-80 group-hover:opacity-100 transition-opacity"></div>
+<!-- Ambient radial glow inside card -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-secondary/5 rounded-full blur-3xl pointer-events-none group-hover:bg-secondary/10 transition-all"></div>
+<div>
+<!-- Header zone -->
+<div class="flex items-center justify-between mb-space-lg">
+<div class="flex items-center gap-space-md">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-high flex items-center justify-center text-secondary shadow-md group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[32px]">balance</span>
+</div>
+<div class="flex flex-col">
+<div class="inline-flex items-center gap-space-xs">
+<span class="font-headline-md text-headline-md font-bold text-on-surface">FACT MODE</span>
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Real-World Claims &amp; Oracle Bets</span>
+</div>
+</div>
+<!-- Pool Pill -->
+<div class="text-right px-space-md py-space-xs rounded-xl bg-surface-container-high">
+<div class="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant">AGGREGATE POOL</div>
+<div class="font-data-mono-num text-data-mono-num font-bold text-secondary-fixed">64,200 GEN</div>
+</div>
+</div>
+<!-- Feature Bullets -->
+<div class="space-y-space-sm mb-space-xl">
+<div class="flex items-start gap-space-sm p-space-sm rounded-xl bg-surface-container-high/40">
+<span class="material-symbols-outlined text-secondary text-[20px] shrink-0 mt-0.5">psychology</span>
+<div>
+<strong class="text-on-surface font-semibold font-body-md text-body-md">Autonomous AI Validator Resolution</strong>
+<p class="text-on-surface-variant font-body-sm text-body-sm">GenLayer intelligent contracts read and reason over multi-source public feeds with zero human bias.</p>
+</div>
+</div>
+<div class="flex items-start gap-space-sm p-space-sm rounded-xl bg-surface-container-high/40">
+<span class="material-symbols-outlined text-secondary text-[20px] shrink-0 mt-0.5">shield_locked</span>
+<div>
+<strong class="text-on-surface font-semibold font-body-md text-body-md">Dispute-Resistant Peer Pooling</strong>
+<p class="text-on-surface-variant font-body-sm text-body-sm">Algorithmic parimutuel odds adapt to incoming market weight without centralized bookmaker spreads.</p>
+</div>
+</div>
+<div class="flex items-start gap-space-sm p-space-sm rounded-xl bg-surface-container-high/40">
+<span class="material-symbols-outlined text-tertiary text-[20px] shrink-0 mt-0.5">tune</span>
+<div>
+<strong class="text-on-surface font-semibold font-body-md text-body-md">Flexible Stake Sizing &amp; Hedges</strong>
+<p class="text-on-surface-variant font-body-sm text-body-sm">From micro-stakes (5 GEN) to whale tranches, back aerospace missions, launches, or cosmic occurrences.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Card Footer & CTA -->
+<div class="pt-space-md flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-xs font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-[16px]">how_to_vote</span>
+<span>28 ACTIVE RESOLUTIONS OPEN</span>
+</div>
+<a class="w-full sm:w-auto inline-flex items-center justify-center gap-space-xs px-space-xl py-space-md rounded-xl bg-secondary text-on-secondary font-headline-sm text-headline-sm font-bold shadow-[0_0_20px_rgba(224,182,255,0.35)] hover:shadow-[0_0_30px_rgba(224,182,255,0.6)] hover:scale-[1.02] transition-all duration-200" href="#">
+<span>Browse Fact Markets</span>
+<span class="material-symbols-outlined text-[20px]">explore</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- HOW VERIFIABLE TRUTH WORKS SECTION -->
+<section class="w-full max-w-max-container mx-auto px-gutter-desktop py-space-2xl">
+<div class="rounded-3xl bg-surface-container-low/75 backdrop-blur-2xl p-space-xl sm:p-space-2xl shadow-xl relative overflow-hidden">
+<!-- Ambient background decoration -->
+<div class="absolute -right-20 -bottom-20 w-80 h-80 bg-primary-container/5 rounded-full blur-3xl pointer-events-none"></div>
+<!-- Section Title -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md mb-space-2xl">
+<div class="flex flex-col gap-space-2xs">
+<span class="font-label-telemetry-sm text-label-telemetry-sm text-tertiary uppercase tracking-widest">
+            CONSENSUS PROTOCOL MECHANISM
+          </span>
+<h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">
+            How Verifiable Truth Works
+          </h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xl">
+            A trustless loop powered by deterministic orbital mechanics and GenLayer's multi-agent AI verification network.
+          </p>
+</div>
+<div class="inline-flex items-center gap-space-xs px-space-md py-space-xs rounded-full bg-surface-container-high font-label-telemetry-sm text-label-telemetry-sm text-primary">
+<span class="material-symbols-outlined text-[16px]">memory</span>
+<span>GenLayer Virtual Machine (GVM) v1.4</span>
+</div>
+</div>
+<!-- 3-Step Timeline Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-xl relative">
+<!-- Step 1 -->
+<div class="relative flex flex-col gap-space-md p-space-lg rounded-2xl bg-surface-container/60 hover:bg-surface-container/90 transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-display-hero text-headline-lg font-extrabold text-primary-container/30">01</span>
+<div class="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-[22px]">account_balance_wallet</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-xs">
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Stake Your Conviction</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Select your market or live orbital trivia round. Lock GEN testnet tokens into the non-custodial smart vault with dynamic odds.
+            </p>
+</div>
+<div class="mt-auto pt-space-xs font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant flex items-center gap-space-2xs">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+<span>Non-custodial Escrow</span>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="relative flex flex-col gap-space-md p-space-lg rounded-2xl bg-surface-container/60 hover:bg-surface-container/90 transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-display-hero text-headline-lg font-extrabold text-secondary/30">02</span>
+<div class="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[22px]">hub</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-xs">
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">AI Validators Cross-Examine</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              Independent GenLayer LLM-backed validator nodes query SatNOGS telemetry stations and verified feeds to achieve deterministic consensus.
+            </p>
+</div>
+<div class="mt-auto pt-space-xs font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant flex items-center gap-space-2xs">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>BFT Subjective Consensus</span>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="relative flex flex-col gap-space-md p-space-lg rounded-2xl bg-surface-container/60 hover:bg-surface-container/90 transition-colors">
+<div class="flex items-center justify-between">
+<span class="font-display-hero text-headline-lg font-extrabold text-tertiary-fixed-dim/30">03</span>
+<div class="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[22px]">redeem</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-xs">
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Consensus Unlocks Bounty</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+              The smart contract autonomously resolves the round. Winners claim pooled yields immediately, verified immutably on the GenLayer ledger.
+            </p>
+</div>
+<div class="mt-auto pt-space-xs font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant flex items-center gap-space-2xs">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-fixed-dim"></span>
+<span>Zero Slashing Delay</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- FLOATING INTERACTIVE TOAST PREVIEW (Demonstrating live transaction/consensus state) -->
+<aside class="fixed bottom-6 right-6 z-40 max-w-sm rounded-2xl bg-surface-container-high/95 backdrop-blur-2xl p-space-md shadow-[0_10px_35px_rgba(0,0,0,0.8),0_0_20px_rgba(0,240,255,0.2)] transition-all duration-300" id="telemetry-toast">
+<div class="flex items-start gap-space-sm">
+<div class="w-9 h-9 rounded-xl bg-surface-container-highest flex items-center justify-center text-primary-container shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[20px] animate-spin" style="animation-duration: 4s;">sync</span>
+</div>
+<div class="flex-1 flex flex-col gap-0.5">
+<div class="flex items-center justify-between">
+<span class="font-label-telemetry-sm text-label-telemetry-sm text-primary-fixed uppercase tracking-wider">Consensus Watcher</span>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors" id="close-toast-btn">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface font-medium">SatNOGS Ground Observation #71890</p>
+<span class="font-label-telemetry-sm text-label-telemetry-sm text-tertiary flex items-center gap-1 mt-1">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-container animate-pulse"></span>
+          AI Consensus Reached: ISS Transmit OK (+450 GEN Payout)
+        </span>
+</div>
+</div>
+</aside>
+<!-- Interactive JavaScript for micro-interactions & toast handling -->
+<script>
+    (function() {
+      // Toast dismiss logic
+      const toast = document.getElementById('telemetry-toast');
+      const closeBtn = document.getElementById('close-toast-btn');
+      if (closeBtn && toast) {
+        closeBtn.addEventListener('click', () => {
+          toast.style.transform = 'translateY(120%)';
+          toast.style.opacity = '0';
+          setTimeout(() => toast.remove(), 350);
+        });
+      }
+
+      // Faucet claim interactive simulation
+      const faucetBtn = document.getElementById('claim-faucet-btn');
+      if (faucetBtn) {
+        faucetBtn.addEventListener('click', () => {
+          const originalContent = faucetBtn.innerHTML;
+          faucetBtn.innerHTML = `
+            <span class="material-symbols-outlined text-tertiary text-[20px] animate-spin">progress_activity</span>
+            <span class="text-tertiary">Broadcasting Claim...</span>
+          `;
+          setTimeout(() => {
+            faucetBtn.innerHTML = `
+              <span class="material-symbols-outlined text-tertiary text-[20px]">check_circle</span>
+              <span class="text-tertiary">+50 GEN Claimed!</span>
+            `;
+            setTimeout(() => {
+              faucetBtn.innerHTML = originalContent;
+            }, 3000);
+          }, 1200);
+        });
+      }
+    })();
+  </script>
+</div></main><footer class="w-full bg-surface-container-lowest py-space-xl shadow-[0_-1px_8px_rgba(0,0,0,0.4)]"><div class="max-w-max-container mx-auto px-gutter-desktop flex flex-col md:flex-row items-center justify-between gap-space-md text-on-surface-variant"><div class="flex flex-wrap items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-sm py-space-2xs rounded-full bg-surface-container-low"><span class="w-2 h-2 rounded-full bg-tertiary-container animate-ping"></span><span class="font-label-telemetry-sm text-label-telemetry-sm text-tertiary">SatNOGS Telemetry Sync: 100% NOMINAL</span></div><span class="hidden sm:inline-block text-outline-variant font-label-telemetry-sm text-label-telemetry-sm">|</span><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-primary-fixed-dim text-[16px]">verified</span><span class="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant">Verifiable Intelligent Oracle by GenLayer</span></div></div><div class="flex items-center gap-space-lg"><a class="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant hover:text-primary transition-colors flex items-center gap-space-2xs" href="#"><span class="material-symbols-outlined text-[16px]">terminal</span>Contract: 0x90B...8A12</a><span class="font-label-telemetry-sm text-label-telemetry-sm text-outline-variant">© 2025 SpaceLottery Orbital</span></div></div></footer></body></html>

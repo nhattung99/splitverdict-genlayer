@@ -1,5 +1,4 @@
 import React from 'react';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 export class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -27,15 +26,22 @@ export class ErrorBoundary extends React.Component {
         <div className="crash-screen">
           <div className="crash-card">
             <div className="crash-icon">
-              <AlertTriangle size={28} />
+              <span className="material-symbols-outlined">warning</span>
             </div>
-            <h2>Something broke in the UI</h2>
-            <p>SplitVerdict caught the error so the page does not go white. Reload to continue.</p>
+            <h2 className="font-headline-md text-headline-md text-on-surface">Something broke in the UI</h2>
+            <p className="font-body-md text-body-md text-on-surface-variant mt-2">
+              SplitVerdict caught the error so the page does not go white. Reload to continue.
+            </p>
             {this.state.error && (
               <pre className="crash-detail">{String(this.state.error)}</pre>
             )}
-            <button className="btn-primary" onClick={this.handleReset}>
-              <RefreshCw size={16} /> Reload
+            <button
+              className="inline-flex items-center justify-center gap-space-xs px-space-xl py-space-md rounded-xl bg-primary-container text-on-primary-container font-headline-sm font-bold"
+              onClick={this.handleReset}
+              type="button"
+            >
+              <span className="material-symbols-outlined text-[18px]">refresh</span>
+              Reload
             </button>
           </div>
         </div>

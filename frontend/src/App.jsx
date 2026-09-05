@@ -1,21 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  Scale,
-  Wallet,
-  PlusCircle,
-  List,
-  RefreshCw,
-  ClipboardPaste,
-  RotateCcw,
-  Plus,
-  Trash2,
-  Share2,
-  Users,
-  Receipt,
-  ExternalLink,
-  Equal,
-} from 'lucide-react';
-import {
   CONTRACT_ADDRESS,
   hasContractAddress,
   getReadClient,
@@ -36,9 +20,12 @@ import {
   BASIS_POINTS_TOTAL,
   formatWriteError,
   txExplorerUrl,
-  addressExplorerUrl,
 } from './genlayerClient.js';
 import { GROUP_PRESETS, EXPENSE_PRESETS, AMOUNT_PRESETS } from './data/presets.js';
+import CosmicBackdrop from './CosmicBackdrop.jsx';
+
+const FAUCET_URL = 'https://studio.genlayer.com';
+const EXPLORER_CONTRACT = `https://genlayer-explorer.vercel.app/address/${CONTRACT_ADDRESS}`;
 
 const shortAddr = (a) => {
   if (!a) return '—';
@@ -48,17 +35,13 @@ const shortAddr = (a) => {
 };
 
 const sameAddr = (a, b) => String(a || '').toLowerCase() === String(b || '').toLowerCase();
-
 const normAddr = (a) => String(a || '').trim().toLowerCase();
-
 const isAddress = (a) => /^0x[0-9a-fA-F]{40}$/.test(String(a || '').trim());
 
 const pasteClipboard = async () => {
   const text = await navigator.clipboard.readText();
   return (text || '').trim();
 };
-
-const statusClass = (status) => `badge badge-${String(status || '').toLowerCase()}`;
 
 const readParam = (key) => {
   try {
@@ -78,9 +61,37 @@ const sharesToJson = (members, bpsMap) => {
   return JSON.stringify(out);
 };
 
+const statusTone = (status) => {
+  const s = String(status || '').toUpperCase();
+  if (s === 'SETTLED' || s === 'RESOLVED') {
+    return 'bg-tertiary-container/15 text-tertiary border border-tertiary-container/30';
+  }
+  if (s === 'DISPUTED' || s === 'PAYOUT_FAILED') {
+    return 'bg-[#FF9100]/10 text-[#FF9100] border border-[#FF9100]/30';
+  }
+  return 'bg-primary-container/10 text-primary-fixed border border-primary-container/25';
+};
+
+const navClass = (active) =>
+  active
+    ? 'px-space-sm py-space-xs transition-all bg-primary-container text-on-primary-container font-bold rounded-lg shadow-[0_0_15px_rgba(0,240,255,0.25)]'
+    : 'px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-headline-sm text-label-telemetry-sm';
+
+const btnPrimary =
+  'inline-flex items-center justify-center gap-space-xs px-space-xl py-space-md rounded-xl bg-primary-container text-on-primary-container font-headline-sm text-headline-sm font-bold shadow-[0_0_20px_rgba(0,240,255,0.4)] hover:shadow-[0_0_30px_rgba(0,240,255,0.65)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100';
+const btnSecondary =
+  'inline-flex items-center justify-center gap-space-xs px-space-lg py-space-md rounded-xl bg-secondary text-on-secondary font-headline-sm text-headline-sm font-bold shadow-[0_0_20px_rgba(224,182,255,0.35)] hover:shadow-[0_0_30px_rgba(224,182,255,0.6)] hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+const btnGhost =
+  'inline-flex items-center justify-center gap-space-xs px-space-md py-space-sm rounded-xl bg-white/[0.03] border border-white/10 text-on-surface hover:border-primary-container/50 hover:bg-primary-container/[0.08] transition-all disabled:opacity-50';
+const inputClass =
+  'w-full bg-[#0A0E1A] border border-white/15 text-on-surface rounded-xl px-space-md py-space-sm outline-none focus:border-primary-container focus:shadow-[0_0_10px_rgba(0,240,255,0.2)] font-data-mono-num text-data-mono-num';
+const glassCard =
+  'rounded-3xl bg-surface-container-low/90 backdrop-blur-2xl p-space-xl shadow-[0_12px_32px_-4px_rgba(0,0,0,0.6)] border border-white/[0.06]';
+
 export default function App() {
+  const initialExpense = readParam('expense');
   const [account, setAccount] = useState(null);
-  const [tab, setTab] = useState(readParam('tab') || 'expenses');
+  const [tab, setTab] = useState(readParam('tab') || (initialExpense ? 'expenses' : 'home'));
   const [groups, setGroups] = useState([]);
   const [expenses, setExpenses] = useState([]);
   const [details, setDetails] = useState({});
@@ -90,35 +101,35 @@ export default function App() {
   const [txHash, setTxHash] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [shareHint, setShareHint] = useState('');
+  const [toastOpen, setToastOpen] = useState(true);
 
   const [groupName, setGroupName] = useState(GROUP_PRESETS[0].name);
   const [memberInputs, setMemberInputs] = useState(['']);
-
   const [expensePresetId, setExpensePresetId] = useState(EXPENSE_PRESETS[0].id);
   const [description, setDescription] = useState(EXPENSE_PRESETS[0].description);
   const [amountStr, setAmountStr] = useState('1');
   const [selectedGroupId, setSelectedGroupId] = useState(readParam('group') || '');
   const [shareBps, setShareBps] = useState({});
-
   const [disputeBps, setDisputeBps] = useState({});
   const [evidenceText, setEvidenceText] = useState('');
-  const [activeExpenseId, setActiveExpenseId] = useState(readParam('expense') || '');
+  const [activeExpenseId, setActiveExpenseId] = useState(initialExpense || '');
 
   const weiPreview = parseGenToWei(amountStr);
   const selectedGroup = groups.find((g) => String(g.group_id) === String(selectedGroupId));
   const selectedMembers = useMemo(() => {
     const raw = selectedGroup?.members || [];
-    const list = raw.map((m) => normAddr(m)).filter(isAddress);
-    if (account && !list.some((m) => sameAddr(m, account))) {
-      return list;
-    }
-    return list;
-  }, [selectedGroup, account]);
+    return raw.map((m) => normAddr(m)).filter(isAddress);
+  }, [selectedGroup]);
 
   const shareSum = useMemo(
     () => sumBasisPoints(selectedMembers.map((m) => shareBps[m] || '0')),
     [selectedMembers, shareBps]
   );
+
+  const settledCount = expenses.filter((e) => (details[e.expense_id]?.status || e.status) === 'SETTLED').length;
+  const disputedCount = expenses.filter((e) => (details[e.expense_id]?.status || e.status) === 'DISPUTED').length;
+  const openCount = expenses.length - settledCount;
+  const totalLockedWei = expenses.reduce((acc, e) => acc + BigInt(toWeiString(e.total_amount)), 0n);
 
   const applyEqualShares = (members, setter) => {
     const addrs = members.map((m) => normAddr(m)).filter(isAddress);
@@ -214,7 +225,6 @@ export default function App() {
       } catch (err) {
         console.warn('list_expenses failed:', err);
       }
-
       if (rows.length === 0) {
         try {
           const countRaw = await client.readContract({
@@ -321,6 +331,7 @@ export default function App() {
         ...(value !== undefined ? { value } : {}),
       });
       setTxHash(hash);
+      setToastOpen(true);
       await waitForTx(client, hash, wait || {});
       await refreshAll();
       return hash;
@@ -359,8 +370,7 @@ export default function App() {
       if (countAfter <= countBefore) {
         throw new Error(`Transaction finalized but the group was not created. Check Explorer: ${txExplorerUrl(hash)}`);
       }
-      const newId = (countAfter - 1n).toString();
-      setSelectedGroupId(newId);
+      setSelectedGroupId((countAfter - 1n).toString());
       setTab('new-expense');
     } catch (err) {
       setErrorMessage(err?.message || 'Create group failed');
@@ -410,8 +420,7 @@ export default function App() {
         throw new Error(`Counter-shares must sum to exactly 10000 bps (got ${sum.toString()}).`);
       }
       if (!evidenceText.trim()) throw new Error('Add evidence text (receipt notes, who ordered what, etc).');
-      const payload = sharesToJson(members, disputeBps);
-      await runWrite('dispute_split', [String(expenseId), payload, evidenceText.trim()]);
+      await runWrite('dispute_split', [String(expenseId), sharesToJson(members, disputeBps), evidenceText.trim()]);
       setEvidenceText('');
       await fetchDetail(expenseId);
     } catch (err) {
@@ -465,34 +474,38 @@ export default function App() {
     const total = sumBasisPoints(addrs.map((m) => bpsMap[m] || '0'));
     const ok = total === BASIS_POINTS_TOTAL;
     return (
-      <div className="field">
-        <div className="row-between">
-          <label className="label">Split (basis points, must sum to 10000)</label>
-          <button type="button" className="btn-ghost" onClick={() => applyEqualShares(addrs, setBps)}>
-            <Equal size={14} /> Equal split
+      <div className="flex flex-col gap-space-sm">
+        <div className="flex items-center justify-between">
+          <label className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant uppercase tracking-wider">
+            Split (basis points, must sum to 10000)
+          </label>
+          <button type="button" className={btnGhost} onClick={() => applyEqualShares(addrs, setBps)}>
+            <span className="material-symbols-outlined text-[16px]">equal</span>
+            Equal split
           </button>
         </div>
         {addrs.map((addr) => {
           const bps = bpsMap[addr] || '0';
           const shareWei = computeShareWei(totalWei, bps);
-          const isPayer = account && sameAddr(addr, account);
+          const isYou = account && sameAddr(addr, account);
           return (
-            <div className="share-row" key={addr}>
-              <div className="mono">{shortAddr(addr)}{isPayer ? ' · you' : ''}</div>
+            <div className="grid grid-cols-1 sm:grid-cols-[1fr_110px_1fr] gap-space-xs items-center" key={addr}>
+              <div className="font-data-mono-num text-data-mono-num text-primary-fixed">
+                {shortAddr(addr)}{isYou ? ' · you' : ''}
+              </div>
               <input
-                className="input mono"
+                className={inputClass}
                 inputMode="numeric"
                 value={bps}
                 onChange={(e) => setBps({ ...bpsMap, [addr]: sanitizeBpsInput(e.target.value) })}
               />
-              <div className="hint" style={{ marginTop: 0 }}>
+              <div className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant">
                 {formatBpsPercent(bps)} · {formatWeiToGen(shareWei)} GEN
               </div>
-              <div />
             </div>
           );
         })}
-        <div className={`share-sum ${ok ? 'ok' : 'bad'}`}>
+        <div className={`font-data-mono-num text-data-mono-num ${ok ? 'text-tertiary' : 'text-error'}`}>
           {total.toString()} / 10000 bps {ok ? '· ready' : '· adjust until this is exact'}
         </div>
       </div>
@@ -525,60 +538,81 @@ export default function App() {
     const progressPct = collectTarget > 0n ? Number((collected * 100n) / collectTarget) : 0;
 
     return (
-      <div className="card" key={expense.expense_id}>
-        <div className="row-between">
+      <article className={`${glassCard} relative overflow-hidden`} key={expense.expense_id}>
+        <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-primary-container via-primary to-secondary opacity-80" />
+        <div className="flex items-start justify-between gap-space-md mb-space-md">
           <div>
-            <div className="label">Expense #{expense.expense_id} · {detail.group_name || expense.group_name || 'group'}</div>
-            <div className="amount">{formatWeiToGen(totalWei)} GEN</div>
-            <div className="hint">Payer receives {formatWeiToGen(payoutWei || computeShareWei(totalWei, '0'))} GEN after deposits</div>
+            <div className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant uppercase tracking-wider">
+              Expense #{expense.expense_id} · {detail.group_name || expense.group_name || 'group'}
+            </div>
+            <div className="font-display-hero text-headline-md font-extrabold text-primary-fixed tabular">
+              {formatWeiToGen(totalWei)} GEN
+            </div>
+            <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
+              Payer receives {formatWeiToGen(payoutWei || '0')} GEN after deposits
+            </p>
           </div>
-          <span className={statusClass(status)}>{status}</span>
+          <span className={`px-space-sm py-space-2xs rounded-full font-label-telemetry-sm text-label-telemetry-sm uppercase ${statusTone(status)}`}>
+            {status}
+          </span>
         </div>
-        <p className="desc">{(detail.description || expense.description || '').slice(0, 240)}</p>
-        <div className="stack meta">
-          <div>Payer: <span className="mono">{shortAddr(payer)}</span></div>
-          <div>Winning proposal: <span className="mono">{detail.winning_proposal_id || '—'}</span></div>
+        <p className="font-body-md text-body-md text-on-surface-variant mb-space-md">
+          {(detail.description || expense.description || '').slice(0, 240)}
+        </p>
+        <div className="flex flex-col gap-space-2xs font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant mb-space-md">
+          <div>Payer: <span className="font-data-mono-num text-data-mono-num text-primary">{shortAddr(payer)}</span></div>
+          <div>Winning proposal: <span className="font-data-mono-num text-data-mono-num text-secondary">{detail.winning_proposal_id || '—'}</span></div>
         </div>
 
         {Object.keys(shares).length > 0 && (
-          <table className="share-table">
-            <thead>
-              <tr>
-                <th>Member</th>
-                <th>Share</th>
-                <th>Owes</th>
-                <th>Deposited</th>
-              </tr>
-            </thead>
-            <tbody>
-              {members.map((m) => (
-                <tr key={m} className={sameAddr(m, payer) ? 'payer-row' : ''}>
-                  <td className="mono">{shortAddr(m)}{sameAddr(m, payer) ? ' · payer' : ''}</td>
-                  <td>{formatBpsPercent(shares[m] || 0)}</td>
-                  <td className="mono">{formatWeiToGen(owed[m] || computeShareWei(totalWei, shares[m] || 0))} GEN</td>
-                  <td className="mono">{sameAddr(m, payer) ? '—' : `${formatWeiToGen(deposits[m] || 0)} GEN`}</td>
+          <div className="overflow-x-auto mb-space-md">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-white/[0.08] text-on-surface-variant font-label-telemetry-sm text-label-telemetry-sm uppercase">
+                  <th className="py-space-xs pr-space-sm font-medium">Member</th>
+                  <th className="py-space-xs pr-space-sm font-medium">Share</th>
+                  <th className="py-space-xs pr-space-sm font-medium text-right">Owes</th>
+                  <th className="py-space-xs font-medium text-right">Deposited</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {members.map((m) => (
+                  <tr key={m} className="border-b border-white/[0.06] hover:bg-white/[0.02]">
+                    <td className={`py-space-xs font-data-mono-num text-data-mono-num ${sameAddr(m, payer) ? 'text-primary-container' : ''}`}>
+                      {shortAddr(m)}{sameAddr(m, payer) ? ' · payer' : ''}
+                    </td>
+                    <td className="py-space-xs text-on-surface-variant">{formatBpsPercent(shares[m] || 0)}</td>
+                    <td className="py-space-xs font-data-mono-num text-data-mono-num text-right tabular">
+                      {formatWeiToGen(owed[m] || computeShareWei(totalWei, shares[m] || 0))} GEN
+                    </td>
+                    <td className="py-space-xs font-data-mono-num text-data-mono-num text-right tabular">
+                      {sameAddr(m, payer) ? '—' : `${formatWeiToGen(deposits[m] || 0)} GEN`}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
 
         {(status === 'RESOLVED' || status === 'SETTLED' || status === 'PAYOUT_FAILED') && collectTarget > 0n && (
-          <div className="progress" aria-label="deposit progress">
-            <span style={{ width: `${progressPct > 100 ? 100 : progressPct}%` }} />
+          <div className="h-2 rounded-full bg-[#0A0E1A] border border-white/10 overflow-hidden mb-space-md" aria-label="deposit progress">
+            <span className="block h-full bg-gradient-to-r from-primary-container to-secondary" style={{ width: `${progressPct > 100 ? 100 : progressPct}%` }} />
           </div>
         )}
 
         {detail.verdict_reason && (
-          <div className={`verdict-box verdict-${String(status).toLowerCase()}`}>
-            <strong>{status === 'DISPUTED' ? 'Latest note' : 'Verdict'}</strong>
-            <p>{detail.verdict_reason}</p>
+          <div className="rounded-xl bg-surface-container/80 border border-white/10 p-space-md mb-space-md">
+            <div className="font-label-telemetry-sm text-label-telemetry-sm text-primary-fixed uppercase">
+              {status === 'DISPUTED' ? 'Latest note' : 'Verdict'}
+            </div>
+            <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">{detail.verdict_reason}</p>
           </div>
         )}
 
-        <div className="actions">
+        <div className="flex flex-col gap-space-sm pt-space-md border-t border-white/[0.08]">
           <button
-            className="btn-ghost full"
+            className={`${btnGhost} w-full`}
             type="button"
             onClick={() => {
               const next = isOpen ? '' : expense.expense_id;
@@ -594,29 +628,30 @@ export default function App() {
 
           {isOpen && (
             <>
-              <button className="btn-secondary full" type="button" onClick={() => copyShare(expense.expense_id)}>
-                <Share2 size={15} /> Share expense link
+              <button className={`${btnGhost} w-full`} type="button" onClick={() => copyShare(expense.expense_id)}>
+                <span className="material-symbols-outlined text-[16px]">ios_share</span>
+                Share expense link
               </button>
 
               {proposals.length > 0 && (
-                <div className="proposal-list">
+                <div className="flex flex-col gap-space-xs">
                   {proposals.map((p) => (
                     <div
                       key={p.id}
-                      className={`proposal-item ${p.id === detail.winning_proposal_id ? 'winner' : ''}`}
+                      className={`rounded-xl bg-[#0A0E1A] p-space-sm border ${p.id === detail.winning_proposal_id ? 'border-primary-container/50' : 'border-white/10'}`}
                     >
-                      <div className="row-between">
+                      <div className="flex justify-between font-headline-sm text-label-telemetry-sm">
                         <strong>Proposal #{p.id}</strong>
-                        <span className="mono">{shortAddr(p.proposer)}</span>
+                        <span className="font-data-mono-num text-on-surface-variant">{shortAddr(p.proposer)}</span>
                       </div>
-                      <p className="hint">{p.evidence_text}</p>
+                      <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">{p.evidence_text}</p>
                     </div>
                   ))}
                 </div>
               )}
 
               {(status === 'PENDING' || status === 'DISPUTED') && isMember && (
-                <button className="btn-primary full" type="button" disabled={loading} onClick={() => handleAccept(expense.expense_id)}>
+                <button className={`${btnPrimary} w-full`} type="button" disabled={loading} onClick={() => handleAccept(expense.expense_id)}>
                   Accept latest split
                 </button>
               )}
@@ -624,404 +659,745 @@ export default function App() {
               {(status === 'PENDING' || status === 'DISPUTED') && isMember && (
                 <>
                   {renderShareEditor(members, disputeBps, setDisputeBps, totalWei)}
-                  <div className="field">
-                    <label className="label">Evidence for your counter-split</label>
-                    <textarea
-                      className="input textarea"
-                      rows={3}
-                      placeholder="Receipt notes, who ordered what, Venmo screenshot description…"
-                      value={evidenceText}
-                      onChange={(e) => setEvidenceText(e.target.value)}
-                    />
-                  </div>
-                  <button className="btn-secondary full" type="button" disabled={loading} onClick={() => handleDispute(expense.expense_id, members)}>
+                  <label className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant uppercase">
+                    Evidence for your counter-split
+                  </label>
+                  <textarea
+                    className={`${inputClass} min-h-[88px] font-body-md`}
+                    rows={3}
+                    placeholder="Receipt notes, who ordered what, payment confirmation…"
+                    value={evidenceText}
+                    onChange={(e) => setEvidenceText(e.target.value)}
+                  />
+                  <button className={`${btnGhost} w-full`} type="button" disabled={loading} onClick={() => handleDispute(expense.expense_id, members)}>
                     Dispute with this counter-split
                   </button>
                 </>
               )}
 
               {status === 'DISPUTED' && proposals.length >= 2 && (
-                <button className="btn-ai" type="button" disabled={loading} onClick={() => handleResolve(expense.expense_id)}>
+                <button className={`${btnSecondary} w-full`} type="button" disabled={loading} onClick={() => handleResolve(expense.expense_id)}>
                   {resolvingId === expense.expense_id ? (
                     <>
-                      <span className="spinner" /> AI is comparing the proposals…
+                      <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
+                      AI is comparing the proposals…
                     </>
                   ) : (
                     <>
-                      <Scale size={16} /> Request AI resolution
+                      <span className="material-symbols-outlined text-[18px]">balance</span>
+                      Request AI resolution
                     </>
                   )}
                 </button>
               )}
 
               {status === 'RESOLVED' && isMember && !isPayer && myRemaining > 0n && (
-                <button className="btn-primary full" type="button" disabled={loading} onClick={() => handleDeposit(expense.expense_id, myRemaining)}>
+                <button className={`${btnPrimary} w-full`} type="button" disabled={loading} onClick={() => handleDeposit(expense.expense_id, myRemaining)}>
                   Deposit remaining {formatWeiToGen(myRemaining)} GEN
                 </button>
               )}
 
               {status === 'RESOLVED' && isPayer && (
-                <div className="warn-box">You already fronted this bill. Wait for the others to deposit, then settle.</div>
+                <div className="rounded-xl bg-[#FF9100]/10 border border-[#FF9100]/30 text-[#FF9100] p-space-sm font-body-sm text-body-sm">
+                  You already fronted this bill. Wait for the others to deposit, then settle.
+                </div>
               )}
 
               {status === 'RESOLVED' && (
-                <button className="btn-secondary full" type="button" disabled={loading} onClick={() => handleSettle(expense.expense_id)}>
+                <button className={`${btnGhost} w-full`} type="button" disabled={loading} onClick={() => handleSettle(expense.expense_id)}>
                   Settle — pay {formatWeiToGen(payoutWei)} GEN to payer
                 </button>
               )}
 
               {status === 'PAYOUT_FAILED' && (
-                <button className="btn-primary full" type="button" disabled={loading} onClick={() => handleRetry(expense.expense_id)}>
-                  <RotateCcw size={15} /> Retry settlement
+                <button className={`${btnPrimary} w-full`} type="button" disabled={loading} onClick={() => handleRetry(expense.expense_id)}>
+                  <span className="material-symbols-outlined text-[18px]">replay</span>
+                  Retry settlement
                 </button>
               )}
             </>
           )}
         </div>
-      </div>
+      </article>
     );
   };
 
-  return (
-    <div className="app">
-      <div className="free-banner">
-        Free to use — you only pay GenLayer network gas when you sign a transaction. There is no platform fee.
-      </div>
-
+  const banners = (
+    <div className="w-full max-w-max-container mx-auto px-gutter-mobile md:px-gutter-desktop flex flex-col gap-space-sm mb-space-lg">
       {!hasContractAddress && (
-        <div className="missing-banner">
-          No contract address is wired yet. The app is in preview mode and will not crash.
-          Deploy on GenLayer Studio, confirm <strong>Result: SUCCESS</strong>, then set{' '}
-          <span className="mono">VITE_CONTRACT_ADDRESS</span> in <span className="mono">frontend/.env</span> and restart{' '}
-          <span className="mono">npm run dev</span>.
+        <div className="rounded-xl bg-[#FF9100]/10 border border-[#FF9100]/30 text-[#FF9100] p-space-md font-body-sm text-body-sm">
+          No contract address is wired yet. The app is in preview mode. Set <span className="font-data-mono-num">VITE_CONTRACT_ADDRESS</span> after deploy.
         </div>
       )}
-
-      <header className="header">
-        <div className="brand">
-          <div className="brand-mark">
-            <Scale size={22} />
-          </div>
-          <div>
-            <h1>SplitVerdict</h1>
-            <p>AI-arbitrated group expense settlement</p>
-          </div>
-        </div>
-        <div className="header-right">
-          <div className="network"><span className="dot" /> studionet</div>
-          {account ? (
-            <button className="btn-secondary mono" type="button">
-              <Wallet size={16} /> {shortAddr(account)}
-            </button>
-          ) : (
-            <button className="btn-primary" type="button" onClick={connectWallet}>
-              <Wallet size={16} /> Connect wallet
-            </button>
-          )}
-        </div>
-      </header>
-
-      <section className="howto-card">
-        <h2>How to try this app</h2>
-        <ol>
-          <li>Install MetaMask. Click <strong>Connect wallet</strong> — the app switches to <strong>studionet</strong>.</li>
-          <li>Fund that address with GEN from the GenLayer Studio <strong>Accounts</strong> panel. Do not use the public testnet faucet.</li>
-          <li>Create a group with at least one other member address, then log an expense. Shares must sum to exactly <span className="mono">10000</span> bps.</li>
-          <li>A member can <strong>Accept latest split</strong>, or <strong>Dispute</strong> with a counter-split plus evidence. A second funded wallet is best for the dispute path.</li>
-          <li>On a dispute, request AI resolution. Validators must agree on the exact <span className="mono">winning_proposal_id</span>.</li>
-          <li>Each non-payer deposits their exact remaining share, then anyone can <strong>Settle</strong> to pay the original payer. Open the tx on{' '}
-            <a className="explorer-link" href={addressExplorerUrl(CONTRACT_ADDRESS)} target="_blank" rel="noreferrer">
-              Studio Explorer <ExternalLink size={13} />
-            </a>.
-          </li>
-        </ol>
-      </section>
-
-      <nav className="tabs">
-        <button className={`tab ${tab === 'expenses' ? 'active' : ''}`} onClick={() => setTab('expenses')}>
-          <Receipt size={16} /> Expenses ({expenses.length})
-        </button>
-        <button className={`tab ${tab === 'groups' ? 'active' : ''}`} onClick={() => setTab('groups')}>
-          <Users size={16} /> Groups ({groups.length})
-        </button>
-        <button className={`tab ${tab === 'new-group' ? 'active' : ''}`} onClick={() => setTab('new-group')}>
-          <PlusCircle size={16} /> New group
-        </button>
-        <button className={`tab ${tab === 'new-expense' ? 'active' : ''}`} onClick={() => setTab('new-expense')}>
-          <List size={16} /> New expense
-        </button>
-      </nav>
-
       {txHash && (
-        <div className="ok-banner">
+        <div className="rounded-xl bg-tertiary-container/10 border border-tertiary-container/30 text-tertiary p-space-md font-body-sm text-body-sm">
           Transaction submitted:{' '}
-          <a className="explorer-link" href={txExplorerUrl(txHash)} target="_blank" rel="noreferrer">
-            {shortAddr(txHash)} <ExternalLink size={13} />
+          <a className="underline" href={txExplorerUrl(txHash)} target="_blank" rel="noreferrer">
+            {shortAddr(txHash)}
           </a>
         </div>
       )}
-      {shareHint && <div className="ok-banner">{shareHint}</div>}
-      {errorMessage && <div className="err-banner">{errorMessage}</div>}
-
-      {tab === 'expenses' && (
-        <div>
-          <div className="row-between" style={{ marginBottom: '1rem' }}>
-            <h2>Open expenses</h2>
-            <button className="btn-secondary" type="button" onClick={refreshAll} disabled={listLoading || !hasContractAddress}>
-              <RefreshCw size={14} /> Refresh
-            </button>
-          </div>
-
-          {!hasContractAddress && (
-            <div className="card empty">
-              <Scale size={36} />
-              <p style={{ marginTop: '0.75rem' }}>Preview mode — a deployed contract address is required to load live expenses.</p>
-              <button className="btn-primary" style={{ marginTop: '1rem' }} type="button" onClick={() => setTab('new-group')}>
-                Explore create flow
-              </button>
-            </div>
-          )}
-
-          {hasContractAddress && listLoading && expenses.length === 0 && (
-            <div className="card empty">
-              <p>Loading expenses from studionet…</p>
-            </div>
-          )}
-
-          {hasContractAddress && !listLoading && expenses.length === 0 && (
-            <div className="card empty">
-              <p>No expenses yet.</p>
-              <button className="btn-primary" style={{ marginTop: '1rem' }} type="button" onClick={() => setTab('new-expense')}>
-                Log the first expense
-              </button>
-            </div>
-          )}
-
-          <div className="grid">
-            {expenses.map(renderExpenseCard)}
-          </div>
+      {shareHint && (
+        <div className="rounded-xl bg-tertiary-container/10 border border-tertiary-container/30 text-tertiary p-space-md font-body-sm text-body-sm">
+          {shareHint}
         </div>
       )}
-
-      {tab === 'groups' && (
-        <div>
-          <div className="row-between" style={{ marginBottom: '1rem' }}>
-            <h2>Groups</h2>
-            <button className="btn-secondary" type="button" onClick={fetchGroups} disabled={!hasContractAddress}>
-              <RefreshCw size={14} /> Refresh
-            </button>
-          </div>
-          {groups.length === 0 && (
-            <div className="card empty">
-              <p>No groups yet.</p>
-              <button className="btn-primary" style={{ marginTop: '1rem' }} type="button" onClick={() => setTab('new-group')}>
-                Create a group
-              </button>
-            </div>
-          )}
-          <div className="grid">
-            {groups.map((g) => (
-              <div className="card" key={g.group_id}>
-                <div className="row-between">
-                  <div>
-                    <div className="label">Group #{g.group_id}</div>
-                    <div className="amount" style={{ fontSize: '1rem' }}>{g.name}</div>
-                  </div>
-                </div>
-                <div className="stack meta" style={{ marginTop: '0.7rem' }}>
-                  <div>Creator: <span className="mono">{shortAddr(g.creator)}</span></div>
-                  {(g.members || []).map((m) => (
-                    <div key={m} className="mono">{shortAddr(m)}</div>
-                  ))}
-                </div>
-                <div className="actions">
-                  <button
-                    className="btn-primary full"
-                    type="button"
-                    onClick={() => {
-                      setSelectedGroupId(String(g.group_id));
-                      applyEqualShares(g.members || [], setShareBps);
-                      setTab('new-expense');
-                    }}
-                  >
-                    Log expense in this group
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+      {errorMessage && (
+        <div className="rounded-xl bg-error-container/40 border border-error/40 text-error p-space-md font-body-sm text-body-sm">
+          {errorMessage}
         </div>
       )}
+    </div>
+  );
 
-      {tab === 'new-group' && (
-        <form className="card create-card" onSubmit={handleCreateGroup}>
-          <h2>Create a group</h2>
-          <div className="field">
-            <label className="label">Name preset</label>
-            <div className="chips">
-              {GROUP_PRESETS.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  className={`chip-card ${groupName === p.name ? 'active' : ''}`}
-                  onClick={() => setGroupName(p.name)}
-                >
-                  <b>{p.icon} {p.name}</b>
-                  <span>{p.blurb}</span>
-                </button>
-              ))}
+  return (
+    <div className="min-h-screen bg-background text-on-surface">
+      <header className="fixed top-0 w-full z-50 bg-surface-container-lowest/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.4)]">
+        <div className="h-20 max-w-max-container mx-auto px-gutter-mobile md:px-gutter-desktop flex items-center justify-between gap-space-md">
+          <div className="flex items-center gap-space-md">
+            <button type="button" className="flex items-center gap-space-sm" onClick={() => setTab('home')}>
+              <span className="h-8 w-8 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary-container shadow-[0_0_16px_rgba(0,240,255,0.35)]">
+                <span className="material-symbols-outlined text-[20px]">account_balance</span>
+              </span>
+              <span className="font-headline-sm text-headline-sm font-bold tracking-tight text-primary">SplitVerdict</span>
+            </button>
+            <div className="hidden lg:flex items-center gap-space-xs px-space-sm py-space-2xs rounded-full bg-surface-container-high">
+              <span className="w-2 h-2 rounded-full bg-tertiary-container animate-pulse" />
+              <span className="font-label-telemetry-sm text-label-telemetry-sm text-tertiary uppercase">GenLayer Studionet</span>
             </div>
           </div>
-          <div className="field">
-            <label className="label">Group name</label>
-            <input className="input" value={groupName} onChange={(e) => setGroupName(e.target.value)} />
-          </div>
-          <div className="field">
-            <label className="label">Other member addresses (your wallet is added automatically)</label>
-            {memberInputs.map((m, i) => (
-              <div className="url-row" key={`m-${i}`}>
-                <input
-                  className="input mono"
-                  placeholder="0x…"
-                  value={m}
-                  onChange={(e) => {
-                    const next = [...memberInputs];
-                    next[i] = e.target.value;
-                    setMemberInputs(next);
-                  }}
-                />
-                <button
-                  type="button"
-                  className="btn-ghost"
-                  onClick={async () => {
-                    const text = await pasteClipboard();
-                    const next = [...memberInputs];
-                    next[i] = text;
-                    setMemberInputs(next);
-                  }}
-                >
-                  <ClipboardPaste size={14} /> Paste
-                </button>
-                {memberInputs.length > 1 && (
-                  <button type="button" className="btn-ghost" onClick={() => setMemberInputs(memberInputs.filter((_, j) => j !== i))}>
-                    <Trash2 size={14} />
-                  </button>
-                )}
-              </div>
-            ))}
-            <button type="button" className="btn-ghost" onClick={() => setMemberInputs([...memberInputs, ''])}>
-              <Plus size={14} /> Add member
-            </button>
-            <div className="hint">Need at least one other 0x address. Creator is always included.</div>
-          </div>
-          <button className="btn-primary full" type="submit" disabled={loading || !hasContractAddress}>
-            {loading ? 'Creating…' : 'Create group'}
-          </button>
-          {!hasContractAddress && <p className="hint">Create stays disabled until VITE_CONTRACT_ADDRESS is set.</p>}
-        </form>
-      )}
-
-      {tab === 'new-expense' && (
-        <form className="card create-card" onSubmit={handleCreateExpense}>
-          <h2>Log an expense</h2>
-
-          <div className="field">
-            <label className="label">Group</label>
-            {groups.length === 0 ? (
-              <div className="warn-box">
-                No groups yet.{' '}
-                <button type="button" className="btn-ghost" onClick={() => setTab('new-group')}>Create a group first</button>
+          <nav className="hidden md:flex items-center gap-space-xs">
+            <button type="button" className={navClass(tab === 'home')} onClick={() => setTab('home')}>Home</button>
+            <button type="button" className={navClass(tab === 'expenses')} onClick={() => setTab('expenses')}>Expenses</button>
+            <button type="button" className={navClass(tab === 'groups')} onClick={() => setTab('groups')}>Groups</button>
+            <button type="button" className={navClass(tab === 'new-expense')} onClick={() => setTab('new-expense')}>New expense</button>
+            <button type="button" className={navClass(tab === 'new-group')} onClick={() => setTab('new-group')}>New group</button>
+          </nav>
+          <div className="flex items-center gap-space-sm">
+            <a
+              className="hidden sm:flex items-center gap-space-2xs px-space-sm py-space-xs rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-secondary font-label-telemetry-sm text-label-telemetry-sm transition-all"
+              href={FAUCET_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <span className="material-symbols-outlined text-[16px]">water_drop</span>
+              Faucet
+            </a>
+            {account ? (
+              <div className="flex items-center gap-space-xs px-space-sm py-space-2xs rounded-xl bg-surface-container-low">
+                <div className="text-right hidden sm:block">
+                  <div className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant">{shortAddr(account)}</div>
+                  <div className="font-data-mono-num text-data-mono-num font-bold text-primary-fixed">studionet</div>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                  <span className="material-symbols-outlined text-on-primary text-[18px]">person</span>
+                </div>
               </div>
             ) : (
-              <div className="chips">
-                {groups.map((g) => (
-                  <button
-                    key={g.group_id}
-                    type="button"
-                    className={`chip ${String(selectedGroupId) === String(g.group_id) ? 'active' : ''}`}
-                    onClick={() => {
-                      setSelectedGroupId(String(g.group_id));
-                      applyEqualShares(g.members || [], setShareBps);
-                    }}
-                  >
-                    {g.name} #{g.group_id}
-                  </button>
-                ))}
-              </div>
+              <button type="button" className={btnPrimary} onClick={connectWallet}>
+                <span className="material-symbols-outlined text-[18px]">account_balance_wallet</span>
+                Connect wallet
+              </button>
             )}
           </div>
+        </div>
+        <nav className="md:hidden flex overflow-x-auto gap-space-xs px-gutter-mobile pb-space-sm">
+          {['home', 'expenses', 'groups', 'new-expense', 'new-group'].map((id) => (
+            <button key={id} type="button" className={navClass(tab === id)} onClick={() => setTab(id)}>
+              {id.replace('-', ' ')}
+            </button>
+          ))}
+        </nav>
+      </header>
 
-          <div className="field">
-            <label className="label">What was this for?</label>
-            <div className="chips">
-              {EXPENSE_PRESETS.map((c) => (
-                <button
-                  key={c.id}
-                  type="button"
-                  className={`chip-card ${expensePresetId === c.id ? 'active' : ''}`}
-                  onClick={() => {
-                    setExpensePresetId(c.id);
-                    setDescription(c.description);
-                  }}
-                >
-                  <b>{c.icon} {c.name}</b>
-                  <span>{c.blurb}</span>
+      <main className="w-full pt-20 bg-background min-h-screen">
+        <div className="flex flex-col w-full relative overflow-hidden">
+          <CosmicBackdrop />
+
+          {tab === 'home' && (
+            <>
+              <div className="pt-space-lg">{banners}</div>
+              <section className="relative w-full max-w-max-container mx-auto px-gutter-mobile md:px-gutter-desktop pt-space-2xl pb-space-3xl">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center">
+                  <div className="lg:col-span-7 flex flex-col items-start gap-space-lg">
+                    <div className="inline-flex items-center gap-space-xs px-space-sm py-space-2xs rounded-full bg-surface-container-high/90 shadow-[0_0_20px_rgba(0,240,255,0.15)]">
+                      <span className="relative flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary-container opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-tertiary-fixed-dim" />
+                      </span>
+                      <span className="font-label-telemetry-sm text-label-telemetry-sm text-tertiary uppercase tracking-wider">
+                        Consensus matrix online
+                      </span>
+                      <span className="text-on-surface-variant font-label-telemetry-sm text-label-telemetry-sm">|</span>
+                      <span className="font-label-telemetry-sm text-label-telemetry-sm text-primary-fixed">
+                        {openCount} OPEN EXPENSES
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-space-2xs">
+                      <span className="font-label-telemetry-lg text-label-telemetry-lg tracking-widest text-primary-container uppercase">
+                        AI-arbitrated group settlement
+                      </span>
+                      <h1 className="font-display-hero text-display-hero-mobile md:text-display-hero text-on-surface font-extrabold tracking-tight">
+                        Split. Verify. <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-container via-primary-fixed to-secondary">Settle.</span>
+                      </h1>
+                    </div>
+                    <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+                      Group expenses on <strong className="text-primary font-semibold">GenLayer</strong>. Members propose splits, independent AI validators must agree on one
+                      <span className="font-data-mono-num"> winning_proposal_id</span>, then everyone deposits their exact share.
+                    </p>
+                    <div className="flex flex-wrap items-center gap-space-md pt-space-xs w-full sm:w-auto">
+                      <button type="button" className={btnPrimary} onClick={() => setTab('expenses')}>
+                        <span>Explore live expenses</span>
+                        <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
+                      </button>
+                      <a className={btnGhost} href={FAUCET_URL} target="_blank" rel="noreferrer">
+                        <span className="material-symbols-outlined text-secondary-fixed-dim text-[20px]">water_drop</span>
+                        <span>Studio faucet</span>
+                      </a>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-space-lg pt-space-xs text-on-surface-variant font-label-telemetry-sm text-label-telemetry-sm">
+                      <div className="flex items-center gap-space-2xs">
+                        <span className="material-symbols-outlined text-tertiary-fixed-dim text-[18px]">verified_user</span>
+                        <span>Exact-id AI consensus</span>
+                      </div>
+                      <div className="flex items-center gap-space-2xs">
+                        <span className="material-symbols-outlined text-primary-container text-[18px]">payments</span>
+                        <span>Integer basis-point splits</span>
+                      </div>
+                      <div className="flex items-center gap-space-2xs">
+                        <span className="material-symbols-outlined text-secondary text-[18px]">lock_open</span>
+                        <span>Non-custodial GEN vault</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="lg:col-span-5 flex justify-center items-center relative">
+                    <div className="relative w-full max-w-[420px] aspect-square flex items-center justify-center">
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-secondary-container/30 via-primary-container/20 to-transparent blur-2xl animate-pulse" />
+                      <svg className="absolute inset-0 w-full h-full" fill="none" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+                        <circle className="text-surface-container-highest" cx="200" cy="200" r="185" stroke="currentColor" strokeDasharray="4 6" strokeWidth="1.5" />
+                        <circle className="text-outline-variant/60" cx="200" cy="200" r="145" stroke="currentColor" strokeWidth="1.5" />
+                        <circle className="text-primary-container/40" cx="200" cy="200" r="105" stroke="currentColor" strokeDasharray="8 4" strokeWidth="1.5" />
+                        <line className="text-outline-variant/30" stroke="currentColor" strokeWidth="1" x1="200" x2="200" y1="10" y2="390" />
+                        <line className="text-outline-variant/30" stroke="currentColor" strokeWidth="1" x1="10" x2="390" y1="200" y2="200" />
+                        <ellipse className="text-secondary/70" cx="200" cy="200" rx="170" ry="70" stroke="currentColor" strokeWidth="2" transform="rotate(-35 200 200)" />
+                        <ellipse className="text-primary-container/80" cx="200" cy="200" rx="170" ry="70" stroke="currentColor" strokeWidth="2" transform="rotate(45 200 200)" />
+                      </svg>
+                      <div className="relative z-10 w-[300px] h-[300px] rounded-3xl bg-surface-container-low/90 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_30px_rgba(0,240,255,0.2)] p-space-lg flex flex-col items-center justify-between text-center overflow-hidden">
+                        <div className="absolute -top-12 -left-12 w-48 h-48 bg-primary/10 rounded-full blur-xl pointer-events-none" />
+                        <div className="w-full flex items-center justify-between text-on-surface-variant font-label-telemetry-sm text-label-telemetry-sm">
+                          <span className="flex items-center gap-space-2xs text-primary-fixed">
+                            <span className="w-2 h-2 rounded-full bg-primary-container animate-ping" />
+                            EXPENSE LEDGER
+                          </span>
+                          <span className="text-secondary font-data-mono-num text-data-mono-num">{expenses.length} TX</span>
+                        </div>
+                        <div className="relative w-36 h-36 my-auto flex items-center justify-center">
+                          <div className="absolute inset-0 rounded-full bg-surface-container-highest/60 flex items-center justify-center shadow-inner">
+                            <div className="w-24 h-24 rounded-full bg-surface-container-high flex items-center justify-center">
+                              <div className="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.6)]">
+                                <span className="material-symbols-outlined text-primary-container text-[28px] animate-spin" style={{ animationDuration: '8s' }}>radar</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="w-full bg-surface-container/90 py-space-xs px-space-sm rounded-xl flex items-center justify-between font-label-telemetry-sm text-label-telemetry-sm">
+                          <span className="text-on-surface-variant">LOCKED TOTAL</span>
+                          <span className="font-data-mono-num text-data-mono-num text-tertiary font-bold tabular">{formatWeiToGen(totalLockedWei)} GEN</span>
+                        </div>
+                      </div>
+                      <div className="absolute -bottom-4 -left-6 z-20 px-space-md py-space-xs rounded-xl bg-surface-container-high/95 backdrop-blur-xl shadow-xl flex items-center gap-space-xs">
+                        <span className="material-symbols-outlined text-secondary text-[20px]">query_stats</span>
+                        <div className="flex flex-col">
+                          <span className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant">AI CONSENSUS</span>
+                          <span className="font-data-mono-num text-data-mono-num text-secondary-fixed font-bold">strict_eq id</span>
+                        </div>
+                      </div>
+                      <div className="absolute -top-4 -right-4 z-20 px-space-md py-space-xs rounded-xl bg-surface-container-high/95 backdrop-blur-xl shadow-xl flex items-center gap-space-xs">
+                        <span className="material-symbols-outlined text-tertiary text-[20px]">bolt</span>
+                        <div className="flex flex-col">
+                          <span className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant">GROUPS</span>
+                          <span className="font-data-mono-num text-data-mono-num text-tertiary font-bold">{groups.length}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section className="w-full max-w-max-container mx-auto px-gutter-mobile md:px-gutter-desktop -mt-space-md mb-space-2xl">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+                  <div className="group relative rounded-2xl bg-surface-container-low/85 backdrop-blur-xl p-space-lg shadow-lg hover:shadow-[0_0_20px_rgba(0,240,255,0.15)] transition-all duration-300 flex items-center justify-between">
+                    <div className="flex flex-col gap-space-2xs">
+                      <span className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant uppercase tracking-wider">Active groups</span>
+                      <div className="font-display-hero text-headline-lg font-extrabold text-on-surface tracking-tight tabular">{groups.length}</div>
+                      <p className="font-body-sm text-body-sm text-on-surface-variant">Crews sharing on-chain expenses</p>
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary-container">
+                      <span className="material-symbols-outlined text-[26px]">groups</span>
+                    </div>
+                  </div>
+                  <div className="group relative rounded-2xl bg-surface-container-low/85 backdrop-blur-xl p-space-lg shadow-lg hover:shadow-[0_0_20px_rgba(224,182,255,0.2)] transition-all duration-300 flex items-center justify-between">
+                    <div className="flex flex-col gap-space-2xs">
+                      <div className="flex items-center gap-space-xs">
+                        <span className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant uppercase tracking-wider">Open ledger</span>
+                        <span className="w-2 h-2 rounded-full bg-secondary animate-ping" />
+                      </div>
+                      <div className="font-display-hero text-headline-lg font-extrabold text-secondary tracking-tight tabular">
+                        {formatWeiToGen(totalLockedWei)} <span className="text-headline-sm font-headline-sm text-secondary-fixed font-medium">GEN</span>
+                      </div>
+                      <p className="font-body-sm text-body-sm text-on-surface-variant">{openCount} expenses still open</p>
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-secondary">
+                      <span className="material-symbols-outlined text-[26px]">savings</span>
+                    </div>
+                  </div>
+                  <div className="group relative rounded-2xl bg-surface-container-low/85 backdrop-blur-xl p-space-lg shadow-lg hover:shadow-[0_0_20px_rgba(52,248,133,0.15)] transition-all duration-300 flex items-center justify-between">
+                    <div className="flex flex-col gap-space-2xs">
+                      <span className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant uppercase tracking-wider">Settled telemetry</span>
+                      <div className="font-display-hero text-headline-lg font-extrabold text-on-surface tracking-tight tabular">
+                        {settledCount} <span className="text-headline-sm font-headline-sm text-tertiary font-medium">paid</span>
+                      </div>
+                      <p className="font-body-sm text-body-sm text-on-surface-variant">Validated by GenLayer AI consensus</p>
+                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-tertiary">
+                      <span className="material-symbols-outlined text-[26px]">task_alt</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section className="w-full max-w-max-container mx-auto px-gutter-mobile md:px-gutter-desktop py-space-xl" id="mode-selection">
+                <div className="flex flex-col gap-space-xs mb-space-xl text-center items-center">
+                  <span className="font-label-telemetry-sm text-label-telemetry-sm text-primary uppercase tracking-widest">Choose your settlement path</span>
+                  <h2 className="font-headline-lg text-headline-lg font-bold text-on-surface">Engineered settlement chambers</h2>
+                  <p className="font-body-md text-body-md text-on-surface-variant max-w-xl">
+                    Accept an uncontested split, or escalate to AI arbitration when the table cannot agree.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-space-xl">
+                  <div className="group relative rounded-3xl bg-surface-container-low/90 backdrop-blur-2xl p-space-xl shadow-[0_12px_32px_-4px_rgba(0,0,0,0.6)] hover:shadow-[0_0_35px_rgba(0,240,255,0.3)] transition-all duration-300 flex flex-col justify-between overflow-hidden">
+                    <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-primary-container via-primary to-primary-container opacity-80" />
+                    <div>
+                      <div className="flex items-center justify-between mb-space-lg">
+                        <div className="flex items-center gap-space-md">
+                          <div className="w-14 h-14 rounded-2xl bg-surface-container-high flex items-center justify-center text-primary-container">
+                            <span className="material-symbols-outlined text-[32px]">handshake</span>
+                          </div>
+                          <div>
+                            <div className="inline-flex items-center gap-space-xs">
+                              <span className="font-headline-md text-headline-md font-bold text-on-surface">ACCEPT PATH</span>
+                              <span className="w-2 h-2 rounded-full bg-primary-container animate-pulse" />
+                            </div>
+                            <span className="font-body-sm text-body-sm text-on-surface-variant">Uncontested splits</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-space-sm mb-space-xl">
+                        <div className="flex items-start gap-space-sm p-space-sm rounded-xl bg-surface-container-high/40">
+                          <span className="material-symbols-outlined text-primary text-[20px]">group</span>
+                          <div>
+                            <strong className="text-on-surface font-semibold">Create a group</strong>
+                            <p className="text-on-surface-variant font-body-sm text-body-sm">Add at least one other wallet. Creator is always included.</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-space-sm p-space-sm rounded-xl bg-surface-container-high/40">
+                          <span className="material-symbols-outlined text-primary text-[20px]">receipt_long</span>
+                          <div>
+                            <strong className="text-on-surface font-semibold">Log the expense</strong>
+                            <p className="text-on-surface-variant font-body-sm text-body-sm">Shares must sum to exactly 10000 basis points. Integer GEN only.</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-space-sm p-space-sm rounded-xl bg-surface-container-high/40">
+                          <span className="material-symbols-outlined text-tertiary text-[20px]">bolt</span>
+                          <div>
+                            <strong className="text-on-surface font-semibold">Accept, deposit, settle</strong>
+                            <p className="text-on-surface-variant font-body-sm text-body-sm">A member accepts the latest proposal. Others deposit exact remaining shares.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" className={`${btnPrimary} w-full sm:w-auto`} onClick={() => setTab('new-group')}>
+                      <span>Open a group</span>
+                      <span className="material-symbols-outlined text-[20px]">rocket_launch</span>
+                    </button>
+                  </div>
+
+                  <div className="group relative rounded-3xl bg-surface-container-low/90 backdrop-blur-2xl p-space-xl shadow-[0_12px_32px_-4px_rgba(0,0,0,0.6)] hover:shadow-[0_0_35px_rgba(224,182,255,0.3)] transition-all duration-300 flex flex-col justify-between overflow-hidden">
+                    <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-secondary-container via-secondary to-secondary-fixed opacity-80" />
+                    <div>
+                      <div className="flex items-center justify-between mb-space-lg">
+                        <div className="flex items-center gap-space-md">
+                          <div className="w-14 h-14 rounded-2xl bg-surface-container-high flex items-center justify-center text-secondary">
+                            <span className="material-symbols-outlined text-[32px]">balance</span>
+                          </div>
+                          <div>
+                            <div className="inline-flex items-center gap-space-xs">
+                              <span className="font-headline-md text-headline-md font-bold text-on-surface">DISPUTE PATH</span>
+                              <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+                            </div>
+                            <span className="font-body-sm text-body-sm text-on-surface-variant">AI oracle arbitration</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="space-y-space-sm mb-space-xl">
+                        <div className="flex items-start gap-space-sm p-space-sm rounded-xl bg-surface-container-high/40">
+                          <span className="material-symbols-outlined text-secondary text-[20px]">psychology</span>
+                          <div>
+                            <strong className="text-on-surface font-semibold">Counter-split + evidence</strong>
+                            <p className="text-on-surface-variant font-body-sm text-body-sm">File a competing basis-point map with receipt notes. Status becomes DISPUTED.</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-space-sm p-space-sm rounded-xl bg-surface-container-high/40">
+                          <span className="material-symbols-outlined text-secondary text-[20px]">hub</span>
+                          <div>
+                            <strong className="text-on-surface font-semibold">Validators must match one id</strong>
+                            <p className="text-on-surface-variant font-body-sm text-body-sm">No score tolerance. Every validator returns the same winning_proposal_id.</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-space-sm p-space-sm rounded-xl bg-surface-container-high/40">
+                          <span className="material-symbols-outlined text-tertiary text-[20px]">tune</span>
+                          <div>
+                            <strong className="text-on-surface font-semibold">{disputedCount} disputes open</strong>
+                            <p className="text-on-surface-variant font-body-sm text-body-sm">Request AI resolution, then deposit the exact remaining share.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" className={`${btnSecondary} w-full sm:w-auto`} onClick={() => setTab('expenses')}>
+                      <span>Browse disputes</span>
+                      <span className="material-symbols-outlined text-[20px]">explore</span>
+                    </button>
+                  </div>
+                </div>
+              </section>
+
+              <section className="w-full max-w-max-container mx-auto px-gutter-mobile md:px-gutter-desktop py-space-2xl">
+                <div className="rounded-3xl bg-surface-container-low/75 backdrop-blur-2xl p-space-xl sm:p-space-2xl shadow-xl relative overflow-hidden">
+                  <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-primary-container/5 rounded-full blur-3xl pointer-events-none" />
+                  <div className="flex flex-col md:flex-row md:items-end justify-between gap-space-md mb-space-2xl">
+                    <div className="flex flex-col gap-space-2xs">
+                      <span className="font-label-telemetry-sm text-label-telemetry-sm text-tertiary uppercase tracking-widest">Consensus protocol</span>
+                      <h2 className="font-headline-lg text-headline-lg font-bold text-on-surface">How verifiable settlement works</h2>
+                      <p className="font-body-md text-body-md text-on-surface-variant max-w-xl">
+                        A trustless loop: competing splits, independent AI validators, then exact-share GEN payouts.
+                      </p>
+                    </div>
+                    <div className="inline-flex items-center gap-space-xs px-space-md py-space-xs rounded-full bg-surface-container-high font-label-telemetry-sm text-label-telemetry-sm text-primary">
+                      <span className="material-symbols-outlined text-[16px]">memory</span>
+                      <span>GenLayer Intelligent Contract</span>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-space-xl">
+                    <div className="relative flex flex-col gap-space-md p-space-lg rounded-2xl bg-surface-container/60">
+                      <div className="flex items-center justify-between">
+                        <span className="font-display-hero text-headline-lg font-extrabold text-primary-container/30">01</span>
+                        <div className="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-primary-container">
+                          <span className="material-symbols-outlined text-[22px]">edit_note</span>
+                        </div>
+                      </div>
+                      <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface">Propose the split</h3>
+                      <p className="font-body-sm text-body-sm text-on-surface-variant">Log the bill with integer GEN and a 10000-bps map. Members accept it or file a counter-proposal plus evidence.</p>
+                    </div>
+                    <div className="relative flex flex-col gap-space-md p-space-lg rounded-2xl bg-surface-container/60">
+                      <div className="flex items-center justify-between">
+                        <span className="font-display-hero text-headline-lg font-extrabold text-secondary/30">02</span>
+                        <div className="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-secondary">
+                          <span className="material-symbols-outlined text-[22px]">hub</span>
+                        </div>
+                      </div>
+                      <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface">AI validators cross-examine</h3>
+                      <p className="font-body-sm text-body-sm text-on-surface-variant">Independent GenLayer nodes read every proposal and must return the exact same winning_proposal_id.</p>
+                    </div>
+                    <div className="relative flex flex-col gap-space-md p-space-lg rounded-2xl bg-surface-container/60">
+                      <div className="flex items-center justify-between">
+                        <span className="font-display-hero text-headline-lg font-extrabold text-tertiary-fixed-dim/30">03</span>
+                        <div className="w-10 h-10 rounded-xl bg-surface-container-highest flex items-center justify-center text-tertiary">
+                          <span className="material-symbols-outlined text-[22px]">redeem</span>
+                        </div>
+                      </div>
+                      <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface">Deposit unlocks payout</h3>
+                      <p className="font-body-sm text-body-sm text-on-surface-variant">Non-payers deposit floor(total × bps / 10000). Settle forwards that sum to the original payer.</p>
+                    </div>
+                  </div>
+                </div>
+              </section>
+            </>
+          )}
+
+          {tab !== 'home' && (
+            <div className="relative w-full max-w-max-container mx-auto px-gutter-mobile md:px-gutter-desktop pt-space-xl pb-space-3xl">
+              {banners}
+
+              {tab === 'expenses' && (
+                <div>
+                  <div className="flex items-center justify-between mb-space-lg">
+                    <div>
+                      <span className="font-label-telemetry-sm text-label-telemetry-sm text-primary uppercase tracking-widest">Live ledger</span>
+                      <h2 className="font-headline-lg text-headline-lg font-bold">Open expenses</h2>
+                    </div>
+                    <button className={btnGhost} type="button" onClick={refreshAll} disabled={listLoading || !hasContractAddress}>
+                      <span className="material-symbols-outlined text-[16px]">refresh</span>
+                      Refresh
+                    </button>
+                  </div>
+                  {hasContractAddress && listLoading && expenses.length === 0 && (
+                    <div className={`${glassCard} text-center text-on-surface-variant`}>Loading expenses from studionet…</div>
+                  )}
+                  {hasContractAddress && !listLoading && expenses.length === 0 && (
+                    <div className={`${glassCard} text-center`}>
+                      <p className="text-on-surface-variant">No expenses yet.</p>
+                      <button className={`${btnPrimary} mt-space-md`} type="button" onClick={() => setTab('new-expense')}>Log the first expense</button>
+                    </div>
+                  )}
+                  {!hasContractAddress && (
+                    <div className={`${glassCard} text-center`}>
+                      <p className="text-on-surface-variant">Preview mode — a deployed contract is required to load live expenses.</p>
+                      <button className={`${btnPrimary} mt-space-md`} type="button" onClick={() => setTab('new-group')}>Explore create flow</button>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-space-lg">
+                    {expenses.map(renderExpenseCard)}
+                  </div>
+                </div>
+              )}
+
+              {tab === 'groups' && (
+                <div>
+                  <div className="flex items-center justify-between mb-space-lg">
+                    <div>
+                      <span className="font-label-telemetry-sm text-label-telemetry-sm text-primary uppercase tracking-widest">Crews</span>
+                      <h2 className="font-headline-lg text-headline-lg font-bold">Groups</h2>
+                    </div>
+                    <button className={btnGhost} type="button" onClick={fetchGroups} disabled={!hasContractAddress}>
+                      <span className="material-symbols-outlined text-[16px]">refresh</span>
+                      Refresh
+                    </button>
+                  </div>
+                  {groups.length === 0 && (
+                    <div className={`${glassCard} text-center`}>
+                      <p className="text-on-surface-variant">No groups yet.</p>
+                      <button className={`${btnPrimary} mt-space-md`} type="button" onClick={() => setTab('new-group')}>Create a group</button>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-space-lg">
+                    {groups.map((g) => (
+                      <div className={glassCard} key={g.group_id}>
+                        <div className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant uppercase">Group #{g.group_id}</div>
+                        <div className="font-headline-md text-headline-md text-primary-fixed mb-space-md">{g.name}</div>
+                        <div className="flex flex-col gap-space-2xs font-data-mono-num text-data-mono-num text-on-surface-variant mb-space-md">
+                          <div>Creator: {shortAddr(g.creator)}</div>
+                          {(g.members || []).map((m) => (
+                            <div key={m}>{shortAddr(m)}</div>
+                          ))}
+                        </div>
+                        <button
+                          className={`${btnPrimary} w-full`}
+                          type="button"
+                          onClick={() => {
+                            setSelectedGroupId(String(g.group_id));
+                            applyEqualShares(g.members || [], setShareBps);
+                            setTab('new-expense');
+                          }}
+                        >
+                          Log expense in this group
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {tab === 'new-group' && (
+                <form className={`${glassCard} max-w-3xl mx-auto`} onSubmit={handleCreateGroup}>
+                  <span className="font-label-telemetry-sm text-label-telemetry-sm text-primary uppercase tracking-widest">New crew</span>
+                  <h2 className="font-headline-lg text-headline-lg font-bold mb-space-lg">Create a group</h2>
+                  <div className="flex flex-wrap gap-space-sm mb-space-lg">
+                    {GROUP_PRESETS.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        className={`text-left min-w-[150px] rounded-xl p-space-sm border ${groupName === p.name ? 'border-primary-container shadow-[0_0_15px_rgba(0,240,255,0.25)]' : 'border-white/10 bg-[#0A0E1A]'}`}
+                        onClick={() => setGroupName(p.name)}
+                      >
+                        <b className="block">{p.icon} {p.name}</b>
+                        <span className="text-on-surface-variant font-body-sm text-body-sm">{p.blurb}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <label className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant uppercase">Group name</label>
+                  <input className={`${inputClass} mb-space-lg mt-space-xs`} value={groupName} onChange={(e) => setGroupName(e.target.value)} />
+                  <label className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant uppercase">Other member addresses</label>
+                  <p className="font-body-sm text-body-sm text-on-surface-variant mb-space-sm">Your wallet is added automatically.</p>
+                  {memberInputs.map((m, i) => (
+                    <div className="flex gap-space-xs mb-space-xs" key={`m-${i}`}>
+                      <input
+                        className={inputClass}
+                        placeholder="0x…"
+                        value={m}
+                        onChange={(e) => {
+                          const next = [...memberInputs];
+                          next[i] = e.target.value;
+                          setMemberInputs(next);
+                        }}
+                      />
+                      <button
+                        type="button"
+                        className={btnGhost}
+                        onClick={async () => {
+                          const text = await pasteClipboard();
+                          const next = [...memberInputs];
+                          next[i] = text;
+                          setMemberInputs(next);
+                        }}
+                      >
+                        <span className="material-symbols-outlined text-[16px]">content_paste</span>
+                      </button>
+                      {memberInputs.length > 1 && (
+                        <button type="button" className={btnGhost} onClick={() => setMemberInputs(memberInputs.filter((_, j) => j !== i))}>
+                          <span className="material-symbols-outlined text-[16px]">delete</span>
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button type="button" className={`${btnGhost} mb-space-lg`} onClick={() => setMemberInputs([...memberInputs, ''])}>
+                    <span className="material-symbols-outlined text-[16px]">add</span>
+                    Add member
+                  </button>
+                  <button className={`${btnPrimary} w-full`} type="submit" disabled={loading || !hasContractAddress}>
+                    {loading ? 'Creating…' : 'Create group'}
+                  </button>
+                </form>
+              )}
+
+              {tab === 'new-expense' && (
+                <form className={`${glassCard} max-w-3xl mx-auto`} onSubmit={handleCreateExpense}>
+                  <span className="font-label-telemetry-sm text-label-telemetry-sm text-primary uppercase tracking-widest">New bill</span>
+                  <h2 className="font-headline-lg text-headline-lg font-bold mb-space-lg">Log an expense</h2>
+                  <label className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant uppercase">Group</label>
+                  {groups.length === 0 ? (
+                    <div className="rounded-xl bg-[#FF9100]/10 border border-[#FF9100]/30 text-[#FF9100] p-space-sm my-space-sm font-body-sm">
+                      No groups yet.{' '}
+                      <button type="button" className="underline" onClick={() => setTab('new-group')}>Create a group first</button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-space-xs my-space-sm">
+                      {groups.map((g) => (
+                        <button
+                          key={g.group_id}
+                          type="button"
+                          className={`px-space-sm py-space-xs rounded-full border font-label-telemetry-sm ${String(selectedGroupId) === String(g.group_id) ? 'border-primary-container text-primary-fixed bg-primary-container/10' : 'border-white/10 text-on-surface-variant'}`}
+                          onClick={() => {
+                            setSelectedGroupId(String(g.group_id));
+                            applyEqualShares(g.members || [], setShareBps);
+                          }}
+                        >
+                          {g.name} #{g.group_id}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <label className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant uppercase mt-space-md block">What was this for?</label>
+                  <div className="flex flex-wrap gap-space-sm my-space-sm">
+                    {EXPENSE_PRESETS.map((c) => (
+                      <button
+                        key={c.id}
+                        type="button"
+                        className={`text-left min-w-[140px] rounded-xl p-space-sm border ${expensePresetId === c.id ? 'border-primary-container' : 'border-white/10 bg-[#0A0E1A]'}`}
+                        onClick={() => {
+                          setExpensePresetId(c.id);
+                          setDescription(c.description);
+                        }}
+                      >
+                        <b className="block">{c.icon} {c.name}</b>
+                        <span className="text-on-surface-variant font-body-sm">{c.blurb}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <label className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant uppercase">Description</label>
+                  <textarea className={`${inputClass} min-h-[88px] font-body-md my-space-sm`} rows={3} value={description} onChange={(e) => setDescription(e.target.value)} />
+                  <label className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant uppercase">Total amount (GEN)</label>
+                  <div className="flex flex-wrap gap-space-xs my-space-sm">
+                    {AMOUNT_PRESETS.map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        className={`px-space-sm py-space-2xs rounded-full border font-data-mono-num ${amountStr === p ? 'border-primary-container text-primary-fixed' : 'border-white/10 text-on-surface-variant'}`}
+                        onClick={() => setAmountStr(p)}
+                      >
+                        {p} GEN
+                      </button>
+                    ))}
+                  </div>
+                  <input className={`${inputClass} mb-space-2xs`} inputMode="decimal" value={amountStr} onChange={(e) => setAmountStr(sanitizeGenInput(e.target.value))} />
+                  <div className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant mb-space-lg">
+                    wei (parseGenToWei): {weiPreview.toString()}
+                  </div>
+                  <div className="mb-space-lg">{renderShareEditor(selectedMembers, shareBps, setShareBps, weiPreview)}</div>
+                  <button className={`${btnPrimary} w-full`} type="submit" disabled={loading || !hasContractAddress || groups.length === 0}>
+                    {loading ? 'Saving…' : `Create expense · ${formatWeiToGen(weiPreview)} GEN`}
+                  </button>
+                </form>
+              )}
+            </div>
+          )}
+        </div>
+      </main>
+
+      {toastOpen && (txHash || resolvingId) && (
+        <aside className="fixed bottom-6 right-6 z-40 max-w-sm rounded-2xl bg-surface-container-high/95 backdrop-blur-2xl p-space-md shadow-[0_10px_35px_rgba(0,0,0,0.8),0_0_20px_rgba(0,240,255,0.2)]">
+          <div className="flex items-start gap-space-sm">
+            <div className="w-9 h-9 rounded-xl bg-surface-container-highest flex items-center justify-center text-primary-container shrink-0">
+              <span className="material-symbols-outlined text-[20px] animate-spin" style={{ animationDuration: '4s' }}>sync</span>
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <span className="font-label-telemetry-sm text-label-telemetry-sm text-primary-fixed uppercase tracking-wider">Consensus watcher</span>
+                <button type="button" className="text-on-surface-variant hover:text-on-surface" onClick={() => setToastOpen(false)}>
+                  <span className="material-symbols-outlined text-[16px]">close</span>
                 </button>
-              ))}
+              </div>
+              <p className="font-body-sm text-body-sm text-on-surface font-medium">
+                {resolvingId ? `AI is comparing proposals on expense #${resolvingId}` : 'Write submitted on studionet'}
+              </p>
+              {txHash && (
+                <a className="font-label-telemetry-sm text-label-telemetry-sm text-tertiary underline" href={txExplorerUrl(txHash)} target="_blank" rel="noreferrer">
+                  {shortAddr(txHash)}
+                </a>
+              )}
             </div>
           </div>
+        </aside>
+      )}
 
-          <div className="field">
-            <label className="label">Description</label>
-            <textarea
-              className="input textarea"
-              rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-
-          <div className="field">
-            <label className="label">Total amount (GEN)</label>
-            <div className="chips" style={{ marginBottom: '0.55rem' }}>
-              {AMOUNT_PRESETS.map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  className={`chip ${amountStr === p ? 'active' : ''}`}
-                  onClick={() => setAmountStr(p)}
-                >
-                  {p} GEN
-                </button>
-              ))}
+      <footer className="w-full bg-surface-container-lowest py-space-xl shadow-[0_-1px_8px_rgba(0,0,0,0.4)]">
+        <div className="max-w-max-container mx-auto px-gutter-mobile md:px-gutter-desktop flex flex-col md:flex-row items-center justify-between gap-space-md text-on-surface-variant">
+          <div className="flex flex-wrap items-center gap-space-md">
+            <div className="flex items-center gap-space-xs px-space-sm py-space-2xs rounded-full bg-surface-container-low">
+              <span className="w-2 h-2 rounded-full bg-tertiary-container animate-ping" />
+              <span className="font-label-telemetry-sm text-label-telemetry-sm text-tertiary">Studionet heartbeat: nominal</span>
             </div>
-            <input
-              className="input mono"
-              inputMode="decimal"
-              value={amountStr}
-              onChange={(e) => setAmountStr(sanitizeGenInput(e.target.value))}
-            />
-            <div className="hint mono">wei (parseGenToWei): {weiPreview.toString()}</div>
+            <div className="flex items-center gap-space-xs">
+              <span className="material-symbols-outlined text-primary-fixed-dim text-[16px]">verified</span>
+              <span className="font-label-telemetry-sm text-label-telemetry-sm">Verifiable AI settlement on GenLayer</span>
+            </div>
           </div>
-
-          {renderShareEditor(selectedMembers, shareBps, setShareBps, weiPreview)}
-
-          <button className="btn-primary full" type="submit" disabled={loading || !hasContractAddress || groups.length === 0}>
-            {loading ? 'Saving…' : `Create expense · ${formatWeiToGen(weiPreview)} GEN`}
-          </button>
-          {!hasContractAddress && <p className="hint">Create stays disabled until VITE_CONTRACT_ADDRESS is set.</p>}
-        </form>
-      )}
-
-      {hasContractAddress && (
-        <footer className="footer">
-          Contract{' '}
-          <a className="explorer-link mono" href={addressExplorerUrl(CONTRACT_ADDRESS)} target="_blank" rel="noreferrer">
-            {shortAddr(CONTRACT_ADDRESS)} <ExternalLink size={12} />
-          </a>
-          {' · '}studionet
-        </footer>
-      )}
+          <div className="flex items-center gap-space-lg">
+            {hasContractAddress && (
+              <a
+                className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant hover:text-primary transition-colors flex items-center gap-space-2xs"
+                href={EXPLORER_CONTRACT}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <span className="material-symbols-outlined text-[16px]">terminal</span>
+                Contract: {shortAddr(CONTRACT_ADDRESS)}
+              </a>
+            )}
+            <span className="font-label-telemetry-sm text-label-telemetry-sm text-outline-variant">© 2026 SplitVerdict</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
