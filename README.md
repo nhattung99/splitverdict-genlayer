@@ -4,6 +4,10 @@ A payer logs a group expense with an initial split in basis points. Other member
 
 SplitVerdict requires GenLayer: ordinary EVM contracts cannot run independent AI validators that must agree on one discrete winning split.
 
+## Live App
+
+https://splitverdict-genlayer.vercel.app
+
 ## Deployed Contract
 
 - **Network:** studionet (GenLayer Studio hosted)
