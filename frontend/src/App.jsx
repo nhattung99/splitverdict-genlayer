@@ -74,17 +74,17 @@ const statusTone = (status) => {
 
 const navClass = (active) =>
   active
-    ? 'px-space-sm py-space-xs transition-all bg-primary-container text-on-primary-container font-bold rounded-lg shadow-[0_0_15px_rgba(0,240,255,0.25)]'
+    ? 'px-space-sm py-space-xs transition-all bg-primary-container text-on-primary-container font-bold rounded-lg shadow-[0_0_15px_rgba(212,175,55,0.28)]'
     : 'px-space-sm py-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all font-headline-sm text-label-telemetry-sm';
 
 const btnPrimary =
-  'inline-flex items-center justify-center gap-space-xs px-space-xl py-space-md rounded-xl bg-primary-container text-on-primary-container font-headline-sm text-headline-sm font-bold shadow-[0_0_20px_rgba(0,240,255,0.4)] hover:shadow-[0_0_30px_rgba(0,240,255,0.65)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100';
+  'inline-flex items-center justify-center gap-space-xs px-space-xl py-space-md rounded-xl bg-primary-container text-on-primary-container font-headline-sm text-headline-sm font-bold shadow-[0_0_20px_rgba(212,175,55,0.4)] hover:shadow-[0_0_30px_rgba(212,175,55,0.65)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100';
 const btnSecondary =
   'inline-flex items-center justify-center gap-space-xs px-space-lg py-space-md rounded-xl bg-secondary text-on-secondary font-headline-sm text-headline-sm font-bold shadow-[0_0_20px_rgba(224,182,255,0.35)] hover:shadow-[0_0_30px_rgba(224,182,255,0.6)] hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
 const btnGhost =
   'inline-flex items-center justify-center gap-space-xs px-space-md py-space-sm rounded-xl bg-white/[0.03] border border-white/10 text-on-surface hover:border-primary-container/50 hover:bg-primary-container/[0.08] transition-all disabled:opacity-50';
 const inputClass =
-  'w-full bg-[#0A0E1A] border border-white/15 text-on-surface rounded-xl px-space-md py-space-sm outline-none focus:border-primary-container focus:shadow-[0_0_10px_rgba(0,240,255,0.2)] font-data-mono-num text-data-mono-num';
+  'w-full bg-[#0A0E1A] border border-white/15 text-on-surface rounded-xl px-space-md py-space-sm outline-none focus:border-primary-container focus:shadow-[0_0_10px_rgba(212,175,55,0.22)] font-data-mono-num text-data-mono-num';
 const glassCard =
   'rounded-3xl bg-surface-container-low/90 backdrop-blur-2xl p-space-xl shadow-[0_12px_32px_-4px_rgba(0,0,0,0.6)] border border-white/[0.06]';
 
@@ -539,7 +539,7 @@ export default function App() {
 
     return (
       <article className={`${glassCard} relative overflow-hidden`} key={expense.expense_id}>
-        <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-primary-container via-primary to-secondary opacity-80" />
+        <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-primary-container via-primary-fixed to-[#8b6914] opacity-80" />
         <div className="flex items-start justify-between gap-space-md mb-space-md">
           <div>
             <div className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant uppercase tracking-wider">
@@ -597,7 +597,7 @@ export default function App() {
 
         {(status === 'RESOLVED' || status === 'SETTLED' || status === 'PAYOUT_FAILED') && collectTarget > 0n && (
           <div className="h-2 rounded-full bg-[#0A0E1A] border border-white/10 overflow-hidden mb-space-md" aria-label="deposit progress">
-            <span className="block h-full bg-gradient-to-r from-primary-container to-secondary" style={{ width: `${progressPct > 100 ? 100 : progressPct}%` }} />
+            <span className="block h-full bg-gradient-to-r from-primary-container to-primary-fixed" style={{ width: `${progressPct > 100 ? 100 : progressPct}%` }} />
           </div>
         )}
 
@@ -756,9 +756,11 @@ export default function App() {
         <div className="h-20 max-w-max-container mx-auto px-gutter-mobile md:px-gutter-desktop flex items-center justify-between gap-space-md">
           <div className="flex items-center gap-space-md">
             <button type="button" className="flex items-center gap-space-sm" onClick={() => setTab('home')}>
-              <span className="h-8 w-8 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary-container shadow-[0_0_16px_rgba(0,240,255,0.35)]">
-                <span className="material-symbols-outlined text-[20px]">account_balance</span>
-              </span>
+              <img
+                src="/logo.jpg"
+                alt="SplitVerdict"
+                className="h-10 w-10 rounded-xl object-cover shadow-[0_0_18px_rgba(212,175,55,0.4)]"
+              />
               <span className="font-headline-sm text-headline-sm font-bold tracking-tight text-primary">SplitVerdict</span>
             </button>
             <div className="hidden lg:flex items-center gap-space-xs px-space-sm py-space-2xs rounded-full bg-surface-container-high">
@@ -820,7 +822,7 @@ export default function App() {
               <section className="relative w-full max-w-max-container mx-auto px-gutter-mobile md:px-gutter-desktop pt-space-2xl pb-space-3xl">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center">
                   <div className="lg:col-span-7 flex flex-col items-start gap-space-lg">
-                    <div className="inline-flex items-center gap-space-xs px-space-sm py-space-2xs rounded-full bg-surface-container-high/90 shadow-[0_0_20px_rgba(0,240,255,0.15)]">
+                    <div className="inline-flex items-center gap-space-xs px-space-sm py-space-2xs rounded-full bg-surface-container-high/90 shadow-[0_0_20px_rgba(212,175,55,0.18)]">
                       <span className="relative flex h-2.5 w-2.5">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary-container opacity-75" />
                         <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-tertiary-fixed-dim" />
@@ -838,7 +840,7 @@ export default function App() {
                         AI-arbitrated group settlement
                       </span>
                       <h1 className="font-display-hero text-display-hero-mobile md:text-display-hero text-on-surface font-extrabold tracking-tight">
-                        Split. Verify. <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-container via-primary-fixed to-secondary">Settle.</span>
+                        Split. Verify. <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-container via-primary-fixed to-[#f5e6c0]">Settle.</span>
                       </h1>
                     </div>
                     <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
@@ -873,51 +875,24 @@ export default function App() {
 
                   <div className="lg:col-span-5 flex justify-center items-center relative">
                     <div className="relative w-full max-w-[420px] aspect-square flex items-center justify-center">
-                      <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-secondary-container/30 via-primary-container/20 to-transparent blur-2xl animate-pulse" />
-                      <svg className="absolute inset-0 w-full h-full" fill="none" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-                        <circle className="text-surface-container-highest" cx="200" cy="200" r="185" stroke="currentColor" strokeDasharray="4 6" strokeWidth="1.5" />
-                        <circle className="text-outline-variant/60" cx="200" cy="200" r="145" stroke="currentColor" strokeWidth="1.5" />
-                        <circle className="text-primary-container/40" cx="200" cy="200" r="105" stroke="currentColor" strokeDasharray="8 4" strokeWidth="1.5" />
-                        <line className="text-outline-variant/30" stroke="currentColor" strokeWidth="1" x1="200" x2="200" y1="10" y2="390" />
-                        <line className="text-outline-variant/30" stroke="currentColor" strokeWidth="1" x1="10" x2="390" y1="200" y2="200" />
-                        <ellipse className="text-secondary/70" cx="200" cy="200" rx="170" ry="70" stroke="currentColor" strokeWidth="2" transform="rotate(-35 200 200)" />
-                        <ellipse className="text-primary-container/80" cx="200" cy="200" rx="170" ry="70" stroke="currentColor" strokeWidth="2" transform="rotate(45 200 200)" />
-                      </svg>
-                      <div className="relative z-10 w-[300px] h-[300px] rounded-3xl bg-surface-container-low/90 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8),0_0_30px_rgba(0,240,255,0.2)] p-space-lg flex flex-col items-center justify-between text-center overflow-hidden">
-                        <div className="absolute -top-12 -left-12 w-48 h-48 bg-primary/10 rounded-full blur-xl pointer-events-none" />
-                        <div className="w-full flex items-center justify-between text-on-surface-variant font-label-telemetry-sm text-label-telemetry-sm">
-                          <span className="flex items-center gap-space-2xs text-primary-fixed">
-                            <span className="w-2 h-2 rounded-full bg-primary-container animate-ping" />
-                            EXPENSE LEDGER
-                          </span>
-                          <span className="text-secondary font-data-mono-num text-data-mono-num">{expenses.length} TX</span>
-                        </div>
-                        <div className="relative w-36 h-36 my-auto flex items-center justify-center">
-                          <div className="absolute inset-0 rounded-full bg-surface-container-highest/60 flex items-center justify-center shadow-inner">
-                            <div className="w-24 h-24 rounded-full bg-surface-container-high flex items-center justify-center">
-                              <div className="w-12 h-12 rounded-full bg-primary-container/20 flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.6)]">
-                                <span className="material-symbols-outlined text-primary-container text-[28px] animate-spin" style={{ animationDuration: '8s' }}>radar</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="w-full bg-surface-container/90 py-space-xs px-space-sm rounded-xl flex items-center justify-between font-label-telemetry-sm text-label-telemetry-sm">
-                          <span className="text-on-surface-variant">LOCKED TOTAL</span>
-                          <span className="font-data-mono-num text-data-mono-num text-tertiary font-bold tabular">{formatWeiToGen(totalLockedWei)} GEN</span>
-                        </div>
-                      </div>
-                      <div className="absolute -bottom-4 -left-6 z-20 px-space-md py-space-xs rounded-xl bg-surface-container-high/95 backdrop-blur-xl shadow-xl flex items-center gap-space-xs">
-                        <span className="material-symbols-outlined text-secondary text-[20px]">query_stats</span>
+                      <div className="absolute inset-6 rounded-[2.75rem] bg-[#d4af37]/25 blur-3xl animate-pulse" />
+                      <img
+                        src="/logo.jpg"
+                        alt="SplitVerdict logo"
+                        className="relative z-10 w-[86%] max-w-[360px] rounded-[2.4rem] object-cover shadow-[0_24px_60px_rgba(0,0,0,0.78),0_0_48px_rgba(212,175,55,0.38)]"
+                      />
+                      <div className="absolute -bottom-3 -left-4 z-20 px-space-md py-space-xs rounded-xl bg-surface-container-high/95 backdrop-blur-xl shadow-xl flex items-center gap-space-xs">
+                        <span className="material-symbols-outlined text-primary-container text-[20px]">query_stats</span>
                         <div className="flex flex-col">
                           <span className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant">AI CONSENSUS</span>
-                          <span className="font-data-mono-num text-data-mono-num text-secondary-fixed font-bold">strict_eq id</span>
+                          <span className="font-data-mono-num text-data-mono-num text-primary-fixed font-bold">strict_eq id</span>
                         </div>
                       </div>
-                      <div className="absolute -top-4 -right-4 z-20 px-space-md py-space-xs rounded-xl bg-surface-container-high/95 backdrop-blur-xl shadow-xl flex items-center gap-space-xs">
-                        <span className="material-symbols-outlined text-tertiary text-[20px]">bolt</span>
+                      <div className="absolute -top-3 -right-3 z-20 px-space-md py-space-xs rounded-xl bg-surface-container-high/95 backdrop-blur-xl shadow-xl flex items-center gap-space-xs">
+                        <span className="material-symbols-outlined text-primary-container text-[20px]">bolt</span>
                         <div className="flex flex-col">
                           <span className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant">GROUPS</span>
-                          <span className="font-data-mono-num text-data-mono-num text-tertiary font-bold">{groups.length}</span>
+                          <span className="font-data-mono-num text-data-mono-num text-primary-fixed font-bold">{groups.length}</span>
                         </div>
                       </div>
                     </div>
@@ -927,7 +902,7 @@ export default function App() {
 
               <section className="w-full max-w-max-container mx-auto px-gutter-mobile md:px-gutter-desktop -mt-space-md mb-space-2xl">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-space-md">
-                  <div className="group relative rounded-2xl bg-surface-container-low/85 backdrop-blur-xl p-space-lg shadow-lg hover:shadow-[0_0_20px_rgba(0,240,255,0.15)] transition-all duration-300 flex items-center justify-between">
+                  <div className="group relative rounded-2xl bg-surface-container-low/85 backdrop-blur-xl p-space-lg shadow-lg hover:shadow-[0_0_20px_rgba(212,175,55,0.18)] transition-all duration-300 flex items-center justify-between">
                     <div className="flex flex-col gap-space-2xs">
                       <span className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant uppercase tracking-wider">Active groups</span>
                       <div className="font-display-hero text-headline-lg font-extrabold text-on-surface tracking-tight tabular">{groups.length}</div>
@@ -976,7 +951,7 @@ export default function App() {
                   </p>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-space-xl">
-                  <div className="group relative rounded-3xl bg-surface-container-low/90 backdrop-blur-2xl p-space-xl shadow-[0_12px_32px_-4px_rgba(0,0,0,0.6)] hover:shadow-[0_0_35px_rgba(0,240,255,0.3)] transition-all duration-300 flex flex-col justify-between overflow-hidden">
+                  <div className="group relative rounded-3xl bg-surface-container-low/90 backdrop-blur-2xl p-space-xl shadow-[0_12px_32px_-4px_rgba(0,0,0,0.6)] hover:shadow-[0_0_35px_rgba(212,175,55,0.28)] transition-all duration-300 flex flex-col justify-between overflow-hidden">
                     <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-primary-container via-primary to-primary-container opacity-80" />
                     <div>
                       <div className="flex items-center justify-between mb-space-lg">
@@ -1024,7 +999,7 @@ export default function App() {
                   </div>
 
                   <div className="group relative rounded-3xl bg-surface-container-low/90 backdrop-blur-2xl p-space-xl shadow-[0_12px_32px_-4px_rgba(0,0,0,0.6)] hover:shadow-[0_0_35px_rgba(224,182,255,0.3)] transition-all duration-300 flex flex-col justify-between overflow-hidden">
-                    <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-secondary-container via-secondary to-secondary-fixed opacity-80" />
+                    <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-[#8b6914] via-primary-container to-primary-fixed opacity-80" />
                     <div>
                       <div className="flex items-center justify-between mb-space-lg">
                         <div className="flex items-center gap-space-md">
@@ -1217,7 +1192,7 @@ export default function App() {
                       <button
                         key={p.id}
                         type="button"
-                        className={`text-left min-w-[150px] rounded-xl p-space-sm border ${groupName === p.name ? 'border-primary-container shadow-[0_0_15px_rgba(0,240,255,0.25)]' : 'border-white/10 bg-[#0A0E1A]'}`}
+                        className={`text-left min-w-[150px] rounded-xl p-space-sm border ${groupName === p.name ? 'border-primary-container shadow-[0_0_15px_rgba(212,175,55,0.28)]' : 'border-white/10 bg-[#0A0E1A]'}`}
                         onClick={() => setGroupName(p.name)}
                       >
                         <b className="block">{p.icon} {p.name}</b>
@@ -1345,7 +1320,7 @@ export default function App() {
       </main>
 
       {toastOpen && (txHash || resolvingId) && (
-        <aside className="fixed bottom-6 right-6 z-40 max-w-sm rounded-2xl bg-surface-container-high/95 backdrop-blur-2xl p-space-md shadow-[0_10px_35px_rgba(0,0,0,0.8),0_0_20px_rgba(0,240,255,0.2)]">
+        <aside className="fixed bottom-6 right-6 z-40 max-w-sm rounded-2xl bg-surface-container-high/95 backdrop-blur-2xl p-space-md shadow-[0_10px_35px_rgba(0,0,0,0.8),0_0_20px_rgba(212,175,55,0.22)]">
           <div className="flex items-start gap-space-sm">
             <div className="w-9 h-9 rounded-xl bg-surface-container-highest flex items-center justify-center text-primary-container shrink-0">
               <span className="material-symbols-outlined text-[20px] animate-spin" style={{ animationDuration: '4s' }}>sync</span>
@@ -1373,6 +1348,10 @@ export default function App() {
       <footer className="w-full bg-surface-container-lowest py-space-xl shadow-[0_-1px_8px_rgba(0,0,0,0.4)]">
         <div className="max-w-max-container mx-auto px-gutter-mobile md:px-gutter-desktop flex flex-col md:flex-row items-center justify-between gap-space-md text-on-surface-variant">
           <div className="flex flex-wrap items-center gap-space-md">
+            <div className="flex items-center gap-space-xs">
+              <img src="/logo.jpg" alt="" className="h-8 w-8 rounded-lg object-cover" />
+              <span className="font-headline-sm text-headline-sm font-bold text-primary">SplitVerdict</span>
+            </div>
             <div className="flex items-center gap-space-xs px-space-sm py-space-2xs rounded-full bg-surface-container-low">
               <span className="w-2 h-2 rounded-full bg-tertiary-container animate-ping" />
               <span className="font-label-telemetry-sm text-label-telemetry-sm text-tertiary">Studionet heartbeat: nominal</span>

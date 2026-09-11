@@ -10,8 +10,8 @@
   }
   body {
     overscroll-behavior: none;
-    background: #0e1223;
-    color: #dee1fa;
+    background: #050a14;
+    color: #f3e6c0;
   }
   main > :first-child {
     margin-top: 0 !important;
@@ -38,7 +38,7 @@
   min-height: 100vh;
   display: grid;
   place-items: center;
-  background: #0e1223;
+  background: #050a14;
   padding: 1.5rem;
 }
 .crash-card {
