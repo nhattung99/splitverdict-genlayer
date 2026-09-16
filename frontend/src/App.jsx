@@ -7,6 +7,7 @@ import {
   parseJsonMaybe,
   waitForTx,
   switchToStudionet,
+  addressExplorerUrl,
   parseGenToWei,
   formatWeiToGen,
   sanitizeGenInput,
@@ -25,7 +26,7 @@ import { GROUP_PRESETS, EXPENSE_PRESETS, AMOUNT_PRESETS } from './data/presets.j
 import CosmicBackdrop from './CosmicBackdrop.jsx';
 
 const FAUCET_URL = 'https://studio.genlayer.com';
-const EXPLORER_CONTRACT = `https://genlayer-explorer.vercel.app/address/${CONTRACT_ADDRESS}`;
+const EXPLORER_CONTRACT = addressExplorerUrl(CONTRACT_ADDRESS);
 
 const shortAddr = (a) => {
   if (!a) return '—';
@@ -149,7 +150,7 @@ export default function App() {
 
   const requireReady = () => {
     if (!hasContractAddress) {
-      throw new Error('No contract address is configured. Deploy on GenLayer Studio, then set VITE_CONTRACT_ADDRESS.');
+      throw new Error('No contract address is configured. Deploy on Studionet (61999), then set VITE_CONTRACT_ADDRESS.');
     }
     if (!account) {
       throw new Error('Connect a wallet first.');
@@ -170,7 +171,7 @@ export default function App() {
         const client = getWriteClient(addr);
         if (client.connect) await client.connect('studionet');
       } catch (err) {
-        console.warn('studionet connect note:', err);
+        console.warn('Studionet connect note:', err);
       }
       setAccount(addr);
       setMemberInputs((prev) => {
@@ -324,12 +325,22 @@ export default function App() {
     setLoading(true);
     try {
       const client = getWriteClient(account);
-      const hash = await client.writeContract({
+      const writeArgs = {
         address: CONTRACT_ADDRESS,
         functionName: fnName,
         args,
         ...(value !== undefined ? { value } : {}),
-      });
+      };
+      try {
+        if (typeof client.estimateTransactionFeesForWrite === 'function') {
+          writeArgs.fees = await client.estimateTransactionFeesForWrite(writeArgs);
+        } else if (typeof client.estimateTransactionFees === 'function') {
+          writeArgs.fees = await client.estimateTransactionFees({});
+        }
+      } catch (err) {
+        console.warn('Fee estimate skipped:', err);
+      }
+      const hash = await client.writeContract(writeArgs);
       setTxHash(hash);
       setToastOpen(true);
       await waitForTx(client, hash, wait || {});
@@ -726,7 +737,7 @@ export default function App() {
     <div className="w-full max-w-max-container mx-auto px-gutter-mobile md:px-gutter-desktop flex flex-col gap-space-sm mb-space-lg">
       {!hasContractAddress && (
         <div className="rounded-xl bg-[#FF9100]/10 border border-[#FF9100]/30 text-[#FF9100] p-space-md font-body-sm text-body-sm">
-          No contract address is wired yet. The app is in preview mode. Set <span className="font-data-mono-num">VITE_CONTRACT_ADDRESS</span> after deploy.
+          No contract address is wired yet. The app is in preview mode. Deploy on Studionet (61999), then set <span className="font-data-mono-num">VITE_CONTRACT_ADDRESS</span>.
         </div>
       )}
       {txHash && (
@@ -765,7 +776,7 @@ export default function App() {
             </button>
             <div className="hidden lg:flex items-center gap-space-xs px-space-sm py-space-2xs rounded-full bg-surface-container-high">
               <span className="w-2 h-2 rounded-full bg-tertiary-container animate-pulse" />
-              <span className="font-label-telemetry-sm text-label-telemetry-sm text-tertiary uppercase">GenLayer Studionet</span>
+              <span className="font-label-telemetry-sm text-label-telemetry-sm text-tertiary uppercase">Studionet 61999</span>
             </div>
           </div>
           <nav className="hidden md:flex items-center gap-space-xs">
@@ -1117,7 +1128,7 @@ export default function App() {
                     </button>
                   </div>
                   {hasContractAddress && listLoading && expenses.length === 0 && (
-                    <div className={`${glassCard} text-center text-on-surface-variant`}>Loading expenses from studionet…</div>
+                    <div className={`${glassCard} text-center text-on-surface-variant`}>Loading expenses from Studionet…</div>
                   )}
                   {hasContractAddress && !listLoading && expenses.length === 0 && (
                     <div className={`${glassCard} text-center`}>
@@ -1333,7 +1344,7 @@ export default function App() {
                 </button>
               </div>
               <p className="font-body-sm text-body-sm text-on-surface font-medium">
-                {resolvingId ? `AI is comparing proposals on expense #${resolvingId}` : 'Write submitted on studionet'}
+                {resolvingId ? `AI is comparing proposals on expense #${resolvingId}` : 'Write submitted on Studionet'}
               </p>
               {txHash && (
                 <a className="font-label-telemetry-sm text-label-telemetry-sm text-tertiary underline" href={txExplorerUrl(txHash)} target="_blank" rel="noreferrer">
