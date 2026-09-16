@@ -54,18 +54,7 @@ export const hasContractAddress = Boolean(
   /^0x[0-9a-fA-F]{40}$/.test(rawAddress)
 );
 
-export const studionet = chains.studionet || {
-  id: 61999,
-  name: 'GenLayer Studionet',
-  nativeCurrency: { name: 'GEN', symbol: 'GEN', decimals: 18 },
-  rpcUrls: {
-    default: { http: ['https://studio.genlayer.com/api'] },
-    public: { http: ['https://studio.genlayer.com/api'] },
-  },
-  blockExplorers: {
-    default: { name: 'Studionet Explorer', url: 'https://explorer-studio.genlayer.com' },
-  },
-};
+export const studionet = chains.studionet;
 
 const toAddress = (account) => {
   if (!account) return '';

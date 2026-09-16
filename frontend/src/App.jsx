@@ -325,22 +325,19 @@ export default function App() {
     setLoading(true);
     try {
       const client = getWriteClient(account);
-      const writeArgs = {
+      if (client.connect) {
+        try {
+          await client.connect('studionet');
+        } catch (err) {
+          console.warn('Studionet connect note:', err);
+        }
+      }
+      const hash = await client.writeContract({
         address: CONTRACT_ADDRESS,
         functionName: fnName,
         args,
         ...(value !== undefined ? { value } : {}),
-      };
-      try {
-        if (typeof client.estimateTransactionFeesForWrite === 'function') {
-          writeArgs.fees = await client.estimateTransactionFeesForWrite(writeArgs);
-        } else if (typeof client.estimateTransactionFees === 'function') {
-          writeArgs.fees = await client.estimateTransactionFees({});
-        }
-      } catch (err) {
-        console.warn('Fee estimate skipped:', err);
-      }
-      const hash = await client.writeContract(writeArgs);
+      });
       setTxHash(hash);
       setToastOpen(true);
       await waitForTx(client, hash, wait || {});
