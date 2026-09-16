@@ -21,6 +21,7 @@ import {
   BASIS_POINTS_TOTAL,
   formatWriteError,
   txExplorerUrl,
+  estimateWriteFees,
 } from './genlayerClient.js';
 import { GROUP_PRESETS, EXPENSE_PRESETS, AMOUNT_PRESETS } from './data/presets.js';
 import CosmicBackdrop from './CosmicBackdrop.jsx';
@@ -164,14 +165,10 @@ export default function App() {
         return;
       }
       setErrorMessage(null);
-      await switchToStudioDev();
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
       const addr = accounts[0];
-      try {
-        getWriteClient(addr);
-      } catch (err) {
-        console.warn('Studio Dev connect note:', err);
-      }
+      const client = getWriteClient(addr);
+      await switchToStudioDev(client);
       setAccount(addr);
       setMemberInputs((prev) => {
         const next = [...prev];
@@ -324,12 +321,18 @@ export default function App() {
     setLoading(true);
     try {
       const client = getWriteClient(account);
-      await switchToStudioDev();
+      await switchToStudioDev(client);
+      const fees = await estimateWriteFees(client, {
+        functionName: fnName,
+        args,
+        value,
+      });
       const hash = await client.writeContract({
         address: CONTRACT_ADDRESS,
         functionName: fnName,
         args,
         ...(value !== undefined ? { value } : {}),
+        ...(fees ? { fees } : {}),
       });
       setTxHash(hash);
       setToastOpen(true);

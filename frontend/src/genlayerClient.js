@@ -1,4 +1,5 @@
-import { createClient, chains } from 'genlayer-js';
+import { createClient } from 'genlayer-js';
+import { studioDevnet } from 'genlayer-js/chains';
 import {
   parseGenToWei,
   formatWeiToGen,
@@ -34,8 +35,8 @@ export {
 const ZERO = '0x0000000000000000000000000000000000000000';
 const rawAddress = (import.meta.env.VITE_CONTRACT_ADDRESS || '').trim();
 
-export const EXPLORER_BASE = 'https://explorer-studio-dev.genlayer.com';
-export const STUDIO_RPC = 'https://studio-dev.genlayer.com/api';
+export const EXPLORER_BASE = studioDevnet.blockExplorers?.default?.url || 'https://explorer-studio-dev.genlayer.com';
+export const STUDIO_RPC = studioDevnet.rpcUrls?.default?.http?.[0] || 'https://studio-dev.genlayer.com/api';
 export const STUDIO_APP = 'https://studio-dev.genlayer.com';
 
 export const txExplorerUrl = (hash) => {
@@ -56,31 +57,7 @@ export const hasContractAddress = Boolean(
   /^0x[0-9a-fA-F]{40}$/.test(rawAddress)
 );
 
-const studionetPreset = chains.studionet || {};
-
-export const studioDevnet = {
-  ...studionetPreset,
-  id: 61997,
-  isStudio: true,
-  name: 'GenLayer Studio Dev',
-  rpcUrls: {
-    default: {
-      http: [STUDIO_RPC],
-    },
-  },
-  nativeCurrency: studionetPreset.nativeCurrency || {
-    name: 'GEN Token',
-    symbol: 'GEN',
-    decimals: 18,
-  },
-  blockExplorers: {
-    default: {
-      name: 'GenLayer Studio Dev Explorer',
-      url: EXPLORER_BASE,
-    },
-  },
-  testnet: true,
-};
+export { studioDevnet };
 
 const toAddress = (account) => {
   if (!account) return '';
@@ -132,11 +109,53 @@ export const formatWriteError = (err) => {
   return msg || 'Write transaction failed.';
 };
 
-const studioDevChainIdHex = () => `0x${BigInt(studioDevnet.id).toString(16)}`;
+const trustedFees = (estimate) => {
+  const preset = estimate?.recommendedPreset || estimate;
+  if (!preset?.distribution || preset.feeValue === undefined) return undefined;
+  return {
+    distribution: preset.distribution,
+    feeValue: preset.feeValue,
+    ...(preset.messageAllocations !== undefined ? { messageAllocations: preset.messageAllocations } : {}),
+  };
+};
 
-export const switchToStudioDev = async () => {
+export const estimateWriteFees = async (client, { functionName, args, value }) => {
+  if (typeof client.estimateTransactionFeesForWrite === 'function') {
+    try {
+      const estimate = await client.estimateTransactionFeesForWrite({
+        address: CONTRACT_ADDRESS,
+        functionName,
+        args,
+        ...(value !== undefined ? { value } : {}),
+      });
+      const fees = trustedFees(estimate);
+      if (fees) return fees;
+    } catch (err) {
+      console.warn('estimateTransactionFeesForWrite note:', err);
+    }
+  }
+  if (typeof client.estimateTransactionFees === 'function') {
+    try {
+      const estimate = await client.estimateTransactionFees({});
+      return trustedFees(estimate);
+    } catch (err) {
+      console.warn('estimateTransactionFees note:', err);
+    }
+  }
+  return undefined;
+};
+
+export const switchToStudioDev = async (client) => {
+  if (client && typeof client.connect === 'function') {
+    try {
+      await client.connect('studioDevnet');
+      return;
+    } catch (err) {
+      console.warn('studioDevnet connect note:', err);
+    }
+  }
   if (typeof window === 'undefined' || !window.ethereum) return;
-  const chainIdHex = studioDevChainIdHex();
+  const chainIdHex = `0x${BigInt(studioDevnet.id).toString(16)}`;
   try {
     await window.ethereum.request({
       method: 'wallet_switchEthereumChain',
@@ -168,7 +187,7 @@ export const waitForTx = async (client, hash, { retries = 30, interval = 2000 } 
     try {
       return await client.waitForTransactionReceipt({
         hash,
-        status: 'FINALIZED',
+        waitUntil: 'finalized',
         retries,
         interval,
       });
