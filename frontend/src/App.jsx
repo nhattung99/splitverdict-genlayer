@@ -6,7 +6,7 @@ import {
   getWriteClient,
   parseJsonMaybe,
   waitForTx,
-  switchToStudionet,
+  switchToStudioDev,
   addressExplorerUrl,
   parseGenToWei,
   formatWeiToGen,
@@ -25,7 +25,7 @@ import {
 import { GROUP_PRESETS, EXPENSE_PRESETS, AMOUNT_PRESETS } from './data/presets.js';
 import CosmicBackdrop from './CosmicBackdrop.jsx';
 
-const FAUCET_URL = 'https://studio.genlayer.com';
+const FAUCET_URL = 'https://studio-dev.genlayer.com';
 const EXPLORER_CONTRACT = addressExplorerUrl(CONTRACT_ADDRESS);
 
 const shortAddr = (a) => {
@@ -150,7 +150,7 @@ export default function App() {
 
   const requireReady = () => {
     if (!hasContractAddress) {
-      throw new Error('No contract address is configured. Deploy on Studionet (61999), then set VITE_CONTRACT_ADDRESS.');
+      throw new Error('No contract address is configured. Deploy on Studio Dev (61997), then set VITE_CONTRACT_ADDRESS.');
     }
     if (!account) {
       throw new Error('Connect a wallet first.');
@@ -164,14 +164,13 @@ export default function App() {
         return;
       }
       setErrorMessage(null);
-      await switchToStudionet();
+      await switchToStudioDev();
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
       const addr = accounts[0];
       try {
-        const client = getWriteClient(addr);
-        if (client.connect) await client.connect('studionet');
+        getWriteClient(addr);
       } catch (err) {
-        console.warn('Studionet connect note:', err);
+        console.warn('Studio Dev connect note:', err);
       }
       setAccount(addr);
       setMemberInputs((prev) => {
@@ -325,13 +324,7 @@ export default function App() {
     setLoading(true);
     try {
       const client = getWriteClient(account);
-      if (client.connect) {
-        try {
-          await client.connect('studionet');
-        } catch (err) {
-          console.warn('Studionet connect note:', err);
-        }
-      }
+      await switchToStudioDev();
       const hash = await client.writeContract({
         address: CONTRACT_ADDRESS,
         functionName: fnName,
@@ -373,7 +366,7 @@ export default function App() {
       }
       if (extras.length < 1) throw new Error('Add at least one other member address.');
       const countBefore = await readGroupCount();
-      const hash = await runWrite('create_group', [groupName.trim(), extras]);
+      const hash = await runWrite('create_group', [groupName.trim(), JSON.stringify(extras)]);
       const countAfter = await readGroupCount();
       if (countAfter <= countBefore) {
         throw new Error(`Transaction finalized but the group was not created. Check Explorer: ${txExplorerUrl(hash)}`);
@@ -397,7 +390,7 @@ export default function App() {
       }
       const payload = sharesToJson(selectedMembers, shareBps);
       const countBefore = await readExpenseCount();
-      const hash = await runWrite('create_expense', [String(selectedGroupId), wei, description.trim(), payload]);
+      const hash = await runWrite('create_expense', [String(selectedGroupId), String(wei), description.trim(), payload]);
       const countAfter = await readExpenseCount();
       if (countAfter <= countBefore) {
         throw new Error(`Transaction finalized but the expense was not created. Check Explorer: ${txExplorerUrl(hash)}`);
@@ -734,7 +727,7 @@ export default function App() {
     <div className="w-full max-w-max-container mx-auto px-gutter-mobile md:px-gutter-desktop flex flex-col gap-space-sm mb-space-lg">
       {!hasContractAddress && (
         <div className="rounded-xl bg-[#FF9100]/10 border border-[#FF9100]/30 text-[#FF9100] p-space-md font-body-sm text-body-sm">
-          No contract address is wired yet. The app is in preview mode. Deploy on Studionet (61999), then set <span className="font-data-mono-num">VITE_CONTRACT_ADDRESS</span>.
+          No contract address is wired yet. The app is in preview mode. Deploy on Studio Dev (61997), then set <span className="font-data-mono-num">VITE_CONTRACT_ADDRESS</span>.
         </div>
       )}
       {txHash && (
@@ -773,7 +766,7 @@ export default function App() {
             </button>
             <div className="hidden lg:flex items-center gap-space-xs px-space-sm py-space-2xs rounded-full bg-surface-container-high">
               <span className="w-2 h-2 rounded-full bg-tertiary-container animate-pulse" />
-              <span className="font-label-telemetry-sm text-label-telemetry-sm text-tertiary uppercase">Studionet 61999</span>
+              <span className="font-label-telemetry-sm text-label-telemetry-sm text-tertiary uppercase">Studio Dev 61997</span>
             </div>
           </div>
           <nav className="hidden md:flex items-center gap-space-xs">
@@ -797,7 +790,7 @@ export default function App() {
               <div className="flex items-center gap-space-xs px-space-sm py-space-2xs rounded-xl bg-surface-container-low">
                 <div className="text-right hidden sm:block">
                   <div className="font-label-telemetry-sm text-label-telemetry-sm text-on-surface-variant">{shortAddr(account)}</div>
-                  <div className="font-data-mono-num text-data-mono-num font-bold text-primary-fixed">studionet</div>
+                  <div className="font-data-mono-num text-data-mono-num font-bold text-primary-fixed">studio-dev</div>
                 </div>
                 <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
                   <span className="material-symbols-outlined text-on-primary text-[18px]">person</span>
@@ -1125,7 +1118,7 @@ export default function App() {
                     </button>
                   </div>
                   {hasContractAddress && listLoading && expenses.length === 0 && (
-                    <div className={`${glassCard} text-center text-on-surface-variant`}>Loading expenses from Studionet…</div>
+                    <div className={`${glassCard} text-center text-on-surface-variant`}>Loading expenses from Studio Dev…</div>
                   )}
                   {hasContractAddress && !listLoading && expenses.length === 0 && (
                     <div className={`${glassCard} text-center`}>
@@ -1341,7 +1334,7 @@ export default function App() {
                 </button>
               </div>
               <p className="font-body-sm text-body-sm text-on-surface font-medium">
-                {resolvingId ? `AI is comparing proposals on expense #${resolvingId}` : 'Write submitted on Studionet'}
+                {resolvingId ? `AI is comparing proposals on expense #${resolvingId}` : 'Write submitted on Studio Dev'}
               </p>
               {txHash && (
                 <a className="font-label-telemetry-sm text-label-telemetry-sm text-tertiary underline" href={txExplorerUrl(txHash)} target="_blank" rel="noreferrer">
@@ -1362,7 +1355,7 @@ export default function App() {
             </div>
             <div className="flex items-center gap-space-xs px-space-sm py-space-2xs rounded-full bg-surface-container-low">
               <span className="w-2 h-2 rounded-full bg-tertiary-container animate-ping" />
-              <span className="font-label-telemetry-sm text-label-telemetry-sm text-tertiary">Studionet heartbeat: nominal</span>
+              <span className="font-label-telemetry-sm text-label-telemetry-sm text-tertiary">Studio Dev heartbeat: nominal</span>
             </div>
             <div className="flex items-center gap-space-xs">
               <span className="material-symbols-outlined text-primary-fixed-dim text-[16px]">verified</span>

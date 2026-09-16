@@ -34,7 +34,9 @@ export {
 const ZERO = '0x0000000000000000000000000000000000000000';
 const rawAddress = (import.meta.env.VITE_CONTRACT_ADDRESS || '').trim();
 
-export const EXPLORER_BASE = 'https://explorer-studio.genlayer.com';
+export const EXPLORER_BASE = 'https://explorer-studio-dev.genlayer.com';
+export const STUDIO_RPC = 'https://studio-dev.genlayer.com/api';
+export const STUDIO_APP = 'https://studio-dev.genlayer.com';
 
 export const txExplorerUrl = (hash) => {
   if (!hash) return EXPLORER_BASE;
@@ -54,7 +56,31 @@ export const hasContractAddress = Boolean(
   /^0x[0-9a-fA-F]{40}$/.test(rawAddress)
 );
 
-export const studionet = chains.studionet;
+const studionetPreset = chains.studionet || {};
+
+export const studioDevnet = {
+  ...studionetPreset,
+  id: 61997,
+  isStudio: true,
+  name: 'GenLayer Studio Dev',
+  rpcUrls: {
+    default: {
+      http: [STUDIO_RPC],
+    },
+  },
+  nativeCurrency: studionetPreset.nativeCurrency || {
+    name: 'GEN Token',
+    symbol: 'GEN',
+    decimals: 18,
+  },
+  blockExplorers: {
+    default: {
+      name: 'GenLayer Studio Dev Explorer',
+      url: EXPLORER_BASE,
+    },
+  },
+  testnet: true,
+};
 
 const toAddress = (account) => {
   if (!account) return '';
@@ -64,7 +90,7 @@ const toAddress = (account) => {
 
 export const getReadClient = () => {
   try {
-    return createClient({ chain: studionet });
+    return createClient({ chain: studioDevnet });
   } catch (err) {
     console.warn('Read client init failed:', err);
     return null;
@@ -76,7 +102,7 @@ export const getWriteClient = (account) => {
     throw new Error('MetaMask is required to sign SplitVerdict transactions on GenLayer.');
   }
   return createClient({
-    chain: studionet,
+    chain: studioDevnet,
     account: toAddress(account),
     provider: window.ethereum,
   });
@@ -106,14 +132,11 @@ export const formatWriteError = (err) => {
   return msg || 'Write transaction failed.';
 };
 
-const studionetChainIdHex = () => {
-  const id = studionet?.id || 61999;
-  return `0x${BigInt(id).toString(16)}`;
-};
+const studioDevChainIdHex = () => `0x${BigInt(studioDevnet.id).toString(16)}`;
 
-export const switchToStudionet = async () => {
+export const switchToStudioDev = async () => {
   if (typeof window === 'undefined' || !window.ethereum) return;
-  const chainIdHex = studionetChainIdHex();
+  const chainIdHex = studioDevChainIdHex();
   try {
     await window.ethereum.request({
       method: 'wallet_switchEthereumChain',
@@ -126,18 +149,14 @@ export const switchToStudionet = async () => {
           method: 'wallet_addEthereumChain',
           params: [{
             chainId: chainIdHex,
-            chainName: studionet.name || 'GenLayer Studionet',
-            nativeCurrency: studionet.nativeCurrency || {
-              name: 'GenLayer Token',
-              symbol: 'GEN',
-              decimals: 18,
-            },
-            rpcUrls: studionet.rpcUrls?.default?.http || ['https://studio.genlayer.com/api'],
-            blockExplorerUrls: [studionet.blockExplorers?.default?.url || 'https://explorer-studio.genlayer.com'],
+            chainName: studioDevnet.name,
+            nativeCurrency: studioDevnet.nativeCurrency,
+            rpcUrls: studioDevnet.rpcUrls.default.http,
+            blockExplorerUrls: [EXPLORER_BASE],
           }],
         });
       } catch (addError) {
-        console.warn('Could not add studionet to MetaMask:', addError);
+        console.warn('Could not add Studio Dev to MetaMask:', addError);
       }
     }
   }

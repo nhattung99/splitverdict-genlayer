@@ -10,13 +10,13 @@ https://splitverdict-genlayer.vercel.app
 
 ## Deployed Contract
 
-- **Network:** Studionet (chain ID **61999**)
-- **Studio app:** https://studio.genlayer.com
-- **RPC:** https://studio.genlayer.com/api
-- **Address:** [`0x79a36B7A50850943752926f8C5b108e7039fF973`](https://explorer-studio.genlayer.com/address/0x79a36B7A50850943752926f8C5b108e7039fF973)
-- **Explorer:** https://explorer-studio.genlayer.com
+- **Network:** Studio Dev / Studio Next (chain ID **61997**)
+- **Studio app:** https://studio-dev.genlayer.com
+- **RPC:** https://studio-dev.genlayer.com/api
+- **Address:** [`0x501112b24225f9285ED69eac89F7fbF955C7A71B`](https://explorer-studio-dev.genlayer.com/address/0x501112b24225f9285ED69eac89F7fbF955C7A71B)
+- **Explorer:** https://explorer-studio-dev.genlayer.com
 
-The live dapp connects MetaMask to Studionet (`61999`).
+The live dapp connects MetaMask to Studio Dev (`61997`).
 
 ## Run the dapp
 
@@ -29,11 +29,11 @@ npm run dev
 
 Open http://localhost:3000.
 
-## Deploy the contract (Studionet)
+## Deploy the contract (Studio Dev)
 
-1. Open [GenLayer Studio](https://studio.genlayer.com/contracts).
+1. Open [GenLayer Studio Dev](https://studio-dev.genlayer.com/contracts).
 2. New Intelligent Contract → paste [`contracts/split_verdict.py`](contracts/split_verdict.py).
-3. Confirm the first two lines are `# v0.2.16` and the pinned `Depends` hash.
+3. Confirm the first two lines are `# v0.3.0` and the pinned `Depends` hash `5jycge4q…`.
 4. Run & Debug → Deploy. Confirm **GenVM Result: SUCCESS**.
 5. Set `VITE_CONTRACT_ADDRESS` in `frontend/.env` and restart `npm run dev`.
 
